@@ -4,6 +4,21 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Prompt Engineering Dashboard</title>
+
+<!-- PWA: theme color (matches dark bg) -->
+<meta name="theme-color" content="#0a0f0c"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="PE Dash"/>
+<meta name="application-name" content="PE Dash"/>
+<meta name="description" content="Prompt Engineering Dashboard — 9 structured templates for AI training"/>
+
+<!-- PWA: manifest injected inline via JS blob (single-file safe) -->
+<link id="pwa-manifest" rel="manifest"/>
+
+<!-- PWA: generated app icon (SVG → base64, no external asset needed) -->
+<link rel="apple-touch-icon" id="pwa-icon-link"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <style>
@@ -1582,6 +1597,144 @@ function init() {
 }
 
 init();
+
+/* ═══════════════════════════════════════════════
+   PWA BOOTSTRAP — single-file safe
+   Manifest + Service Worker injected as blobs.
+   No external files required.
+   ═══════════════════════════════════════════════ */
+(function() {
+
+  /* ── 1. Generate app icon as SVG data URL ── */
+  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="96" fill="#0a0f0c"/>
+    <rect x="40" y="40" width="432" height="432" rx="72" fill="#101710"/>
+    <text x="256" y="310" font-family="monospace" font-size="210" font-weight="700"
+      fill="#34d464" text-anchor="middle">PE</text>
+    <rect x="80" y="350" width="352" height="7" rx="3.5" fill="#1e3022"/>
+    <rect x="80" y="373" width="210" height="7" rx="3.5" fill="#34d464" opacity="0.5"/>
+  </svg>`;
+  const iconB64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
+  const iconLink = document.getElementById('pwa-icon-link');
+  if (iconLink) iconLink.href = iconB64;
+
+  /* ── 2. Inject manifest blob ── */
+  const manifest = {
+    name: 'Prompt Engineering Dashboard',
+    short_name: 'PE Dash',
+    description: '9 structured AI prompt templates for training teams',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    orientation: 'any',
+    background_color: '#0a0f0c',
+    theme_color: '#0a0f0c',
+    lang: 'en',
+    icons: [
+      { src: iconB64, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: iconB64, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const manifestURL = URL.createObjectURL(manifestBlob);
+  const manifestLink = document.getElementById('pwa-manifest');
+  if (manifestLink) manifestLink.href = manifestURL;
+
+  /* ── 3. Register inline Service Worker via blob ── */
+  const swCode = `
+const CACHE = 'pe-dash-v1';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE).then(cache =>
+      cache.addAll([self.location.origin + self.location.pathname]).catch(() => {})
+    )
+  );
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
+  );
+});`;
+
+  if ('serviceWorker' in navigator) {
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    const swURL = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL, { scope: './' })
+      .then(() => console.log('[PWA] Service worker registered'))
+      .catch(err => console.warn('[PWA] SW failed (expected on file://):', err));
+  }
+
+  /* ── 4. Install prompt banner ── */
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (document.getElementById('pwa-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'pwa-banner';
+    banner.style.cssText = [
+      'position:fixed',
+      'bottom:calc(var(--bottomnav-h,56px) + 12px)',
+      'left:50%',
+      'transform:translateX(-50%)',
+      'background:var(--bg-2)',
+      'border:1px solid var(--border-active)',
+      'border-radius:999px',
+      'padding:10px 18px',
+      'display:flex',
+      'align-items:center',
+      'gap:10px',
+      'font-family:var(--font-ui)',
+      'font-size:13px',
+      'color:var(--text)',
+      'box-shadow:0 0 18px 4px var(--accent-glow)',
+      'z-index:9998',
+      'white-space:nowrap'
+    ].join(';');
+    banner.innerHTML =
+      '<span style="color:var(--accent)">⬇</span>' +
+      '<span>Install as app</span>' +
+      '<button onclick="window.__pwaBannerInstall()" style="background:var(--btn-primary);color:#fff;border:none;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-ui)">Install</button>' +
+      '<button onclick="document.getElementById(\'pwa-banner\').remove()" style="background:transparent;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:0 2px">✕</button>';
+    document.body.appendChild(banner);
+  });
+
+  window.__pwaBannerInstall = function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') toast('Installing PE Dash\u2026', 'success');
+      const b = document.getElementById('pwa-banner');
+      if (b) b.remove();
+      deferredPrompt = null;
+    });
+  };
+
+  window.addEventListener('appinstalled', () => {
+    toast('PE Dash installed \u2713', 'success');
+    const b = document.getElementById('pwa-banner');
+    if (b) b.remove();
+  });
+
+})();
+
 </script>
 </body>
 </html>
