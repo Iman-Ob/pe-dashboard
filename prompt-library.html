@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Prompt Library · مكتبة البرومبتس</title>
+<meta name="theme-color" content="#0d0e12"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link href="https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --font-ui: 'Dubai', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --radius: 6px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --transition: 0.16s ease;
+  --topbar-h: 58px;
+}
+
+[data-theme="dark"] {
+  --bg:            #0a0f0c;
+  --bg-2:          #101710;
+  --bg-3:          #172017;
+  --bg-4:          #1c2a1c;
+  --border:        #1e3022;
+  --border-hi:     #34d464;
+  --text:          #e2f0e6;
+  --text-muted:    #5a8a65;
+  --text-dim:      #7aaa84;
+  --accent:        #34d464;
+  --accent-dim:    rgba(52,212,100,0.15);
+  --accent-glow:   rgba(52,212,100,0.22);
+  --accent-2:      #059669;
+  --danger:        #f87171;
+  --warn:          #fbbf24;
+  --star-on:       #fbbf24;
+  --star-off:      #1e3022;
+  --tag-bg:        rgba(52,212,100,0.10);
+  --card-bg:       #101710;
+  --card-hover:    #141f14;
+  --modal-overlay: rgba(0,0,0,0.75);
+  --scrollbar:     #1e3022;
+  --scrollbar-t:   #2a4a30;
+  --badge-new:     #34d464;
+  --badge-bg:      rgba(52,212,100,0.12);
+}
+
+[data-theme="light"] {
+  --bg:            #f0faf2;
+  --bg-2:          #ffffff;
+  --bg-3:          #e6f5ea;
+  --bg-4:          #d8f0de;
+  --border:        #b6dfc0;
+  --border-hi:     #16a34a;
+  --text:          #0a1f0e;
+  --text-muted:    #4a7a57;
+  --text-dim:      #2d6040;
+  --accent:        #16a34a;
+  --accent-dim:    rgba(22,163,74,0.10);
+  --accent-glow:   rgba(22,163,74,0.18);
+  --accent-2:      #059669;
+  --danger:        #dc2626;
+  --warn:          #d97706;
+  --star-on:       #d97706;
+  --star-off:      #b6dfc0;
+  --tag-bg:        rgba(22,163,74,0.08);
+  --card-bg:       #ffffff;
+  --card-hover:    #e6f5ea;
+  --modal-overlay: rgba(0,0,0,0.5);
+  --scrollbar:     #d4edda;
+  --scrollbar-t:   #a8d4b4;
+  --badge-new:     #16a34a;
+  --badge-bg:      rgba(22,163,74,0.10);
+}
+
+/* ═══════════════════════════════════════
+   RESET
+═══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:var(--font-ui);
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--scrollbar)}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-t);border-radius:3px}
+button{cursor:pointer;font-family:var(--font-ui);border:none;outline:none;background:none}
+input,textarea,select{font-family:var(--font-ui);outline:none;border:none;background:none}
+a{text-decoration:none;color:inherit}
+
+/* RTL support */
+[dir="rtl"] { font-family: 'Dubai', 'Segoe UI', system-ui, sans-serif; }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* ── TOPBAR ── */
+#topbar{
+  height:var(--topbar-h);min-height:var(--topbar-h);
+  background:var(--bg-2);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 1px 0 var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:14px;
+  z-index:100;flex-shrink:0;
+}
+#logo{
+  font-family:var(--font-mono);font-size:14px;font-weight:600;
+  color:var(--accent);letter-spacing:0.06em;white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+#logo-dot{
+  width:7px;height:7px;border-radius:2px;background:var(--accent);
+  box-shadow:0 0 6px 1px var(--accent-glow);
+  flex-shrink:0;
+}
+.topbar-search{
+  flex:1;max-width:420px;
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg-3);border:1px solid var(--border);border-radius:0px;
+  padding:7px 14px;transition:border-color var(--transition),box-shadow var(--transition);
+}
+.topbar-search:focus-within{border-color:var(--border-hi);box-shadow:0 0 0 3px var(--accent-dim)}
+.topbar-search input{flex:1;color:var(--text);font-size:14px;background:transparent}
+.topbar-search input::placeholder{color:var(--text-muted)}
+.search-icon{color:var(--text-muted);font-size:14px;flex-shrink:0}
+.topbar-actions{display:flex;gap:8px;align-items:center;margin-left:auto}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 20px;border-radius:0px;
+  font-size:12.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;
+  transition:background var(--transition),color var(--transition),
+    border-color var(--transition),box-shadow var(--transition),transform 0.1s;
+  white-space:nowrap;
+}
+.btn:active{transform:translateY(1px);box-shadow:none !important}
+
+/* Primary — مربع صلب مع ظل عميق */
+.btn-primary{
+  background:var(--accent);color:#fff;
+  border:1px solid var(--accent);
+  box-shadow:3px 3px 0px var(--accent-2);
+}
+.btn-primary:hover{
+  background:var(--accent-2);border-color:var(--accent-2);
+  box-shadow:4px 4px 0px rgba(29,78,216,0.6);
+}
+
+/* Ghost — حدود فقط، ظل داكن عند hover */
+.btn-ghost{
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border);
+  box-shadow:2px 2px 0px var(--bg-4);
+}
+.btn-ghost:hover{
+  background:var(--accent-dim);color:var(--accent);
+  border-color:var(--border-hi);
+  box-shadow:3px 3px 0px var(--accent-dim);
+}
+
+/* Icon — مربع صغير */
+.btn-icon{
+  padding:7px 9px;color:var(--text-muted);
+  background:transparent;
+  border:1px solid var(--border);border-radius:0px;
+  font-size:15px;line-height:1;
+  box-shadow:2px 2px 0px var(--bg-4);
+  transition:background var(--transition),color var(--transition),
+    border-color var(--transition),box-shadow var(--transition);
+}
+.btn-icon:hover{
+  background:var(--accent-dim);color:var(--accent);
+  border-color:var(--border-hi);
+  box-shadow:3px 3px 0px var(--accent-dim);
+}
+
+/* Danger */
+.btn-danger{
+  background:transparent;color:var(--danger);
+  border:1px solid rgba(248,113,113,0.4);
+  box-shadow:2px 2px 0px rgba(248,113,113,0.15);
+}
+.btn-danger:hover{
+  background:rgba(248,113,113,0.08);
+  border-color:var(--danger);
+  box-shadow:3px 3px 0px rgba(248,113,113,0.25);
+}
+
+/* Small */
+.btn-sm{padding:5px 13px;font-size:11px}
+
+/* ── MAIN AREA ── */
+#main{flex:1;display:flex;overflow:hidden}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:220px;min-width:220px;
+  background:var(--bg-2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;
+  transition:width 0.2s ease,min-width 0.2s ease;
+}
+#sidebar.collapsed{width:0;min-width:0;overflow:hidden}
+.sidebar-section{padding:14px 16px 8px;flex-shrink:0}
+.sidebar-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.14em;color:var(--text-muted);margin-bottom:8px;
+}
+.sidebar-scroll{flex:1;overflow-y:auto;padding-bottom:16px}
+.filter-btn{
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:7px 14px;font-size:13px;color:var(--text-dim);
+  border-radius:5px;transition:background var(--transition),color var(--transition),border-left var(--transition);
+  text-align:start;border-left:2px solid transparent;
+}
+.filter-btn:hover{background:var(--bg-3);color:var(--text)}
+.filter-btn.active{background:var(--accent-dim);color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+.filter-btn .count{
+  margin-inline-start:auto;font-size:10px;font-family:var(--font-mono);
+  background:var(--bg-4);border-radius:3px;
+  padding:1px 6px;color:var(--text-muted);
+}
+.filter-btn.active .count{background:var(--accent-dim);color:var(--accent)}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 16px}
+
+/* ── CONTENT ── */
+#content-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOOLBAR ── */
+#toolbar{
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;
+  background:var(--bg-2);
+}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap}
+.toolbar-right{display:flex;align-items:center;gap:8px}
+.results-count{font-size:12px;color:var(--text-muted);font-family:var(--font-mono)}
+.sort-select{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:0px;
+  color:var(--text);padding:6px 12px;font-size:12px;font-family:var(--font-ui);
+  cursor:pointer;letter-spacing:0.02em;
+}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:0px;overflow:hidden}
+.view-btn{
+  padding:5px 10px;font-size:13px;color:var(--text-muted);
+  transition:background var(--transition),color var(--transition);
+}
+.view-btn.active{background:var(--accent-dim);color:var(--accent)}
+
+/* ── GRID / LIST ── */
+#cards-container{
+  flex:1;overflow-y:auto;padding:20px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;
+  align-content:start;
+}
+#cards-container.list-view{grid-template-columns:1fr;gap:8px}
+
+/* ── PROMPT CARD ── */
+.prompt-card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:0px;
+  padding:16px 18px;cursor:pointer;
+  transition:background var(--transition),border-color var(--transition),
+    box-shadow var(--transition);
+  display:flex;flex-direction:column;gap:10px;position:relative;
+  border-left:3px solid transparent;
+}
+.prompt-card:hover{
+  background:var(--card-hover);
+  border-color:var(--border-hi);
+  border-left-color:var(--accent);
+  box-shadow:4px 4px 0px var(--bg-4),0 0 0 1px var(--border-hi);
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.card-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.card-template-badge{
+  font-family:var(--font-mono);font-size:10px;font-weight:600;
+  padding:3px 7px;border-radius:4px;
+  background:var(--bg-4);color:var(--accent);white-space:nowrap;flex-shrink:0;
+  border:1px solid var(--border);letter-spacing:0.06em;
+}
+.card-body{font-size:13px;color:var(--text-muted);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.list-view .card-body{-webkit-line-clamp:2}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{
+  font-size:11px;padding:3px 8px;border-radius:4px;
+  background:var(--tag-bg);color:var(--accent);cursor:pointer;
+  border:1px solid rgba(59,130,246,0.18);
+  font-family:var(--font-mono);letter-spacing:0.03em;
+  transition:background var(--transition),border-color var(--transition);
+}
+.tag:hover{background:var(--accent-dim);border-color:var(--border-hi)}
+.card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-meta{display:flex;align-items:center;gap:8px}
+.meta-item{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);display:flex;align-items:center;gap:3px}
+.stars-display{display:flex;gap:2px}
+.star{font-size:13px;cursor:pointer;transition:transform 0.1s}
+.star.on{color:var(--star-on)}
+.star.off{color:var(--star-off)}
+.star:hover{transform:scale(1.2)}
+.version-badge{
+  font-size:10px;padding:2px 6px;border-radius:3px;
+  background:var(--bg-4);color:var(--text-dim);font-family:var(--font-mono);
+  border:1px solid var(--border);letter-spacing:0.04em;
+}
+.card-actions{display:flex;gap:4px;opacity:0;transition:opacity var(--transition)}
+.prompt-card:hover .card-actions{opacity:1}
+
+/* New badge */
+.badge-new{
+  position:absolute;top:-6px;inset-inline-end:-6px;
+  background:var(--badge-new);color:#fff;
+  font-size:9px;font-weight:700;letter-spacing:0.08em;
+  padding:2px 6px;border-radius:var(--radius-pill);
+}
+
+/* empty state */
+#empty-state{
+  grid-column:1/-1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:60px 20px;
+  gap:12px;color:var(--text-muted);
+}
+#empty-state .empty-icon{font-size:48px;opacity:0.3}
+#empty-state p{font-size:14px;text-align:center}
+
+/* loading */
+#loading-state{
+  grid-column:1/-1;display:flex;align-items:center;
+  justify-content:center;padding:60px;gap:12px;color:var(--text-muted);
+}
+.spinner{
+  width:24px;height:24px;border:2px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════════════════════════════════
+   MODAL BASE
+═══════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:var(--modal-overlay);
+  z-index:200;display:none;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:2px;width:100%;
+  display:flex;flex-direction:column;max-height:90vh;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5),0 0 0 1px var(--border);
+}
+.modal-header{
+  padding:18px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.modal-header h2{font-size:16px;font-weight:700;color:var(--text)}
+.modal-body{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.modal-footer{
+  padding:14px 22px;border-top:1px solid var(--border);
+  display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap;
+}
+
+/* ── FORM FIELDS ── */
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim)}
+.field-input{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:0px;
+  color:var(--text);padding:9px 12px;font-size:14px;width:100%;
+  transition:border-color var(--transition),box-shadow var(--transition);
+}
+.field-input:focus{border-color:var(--border-hi);box-shadow:0 0 0 3px var(--accent-dim)}
+textarea.field-input{min-height:120px;resize:vertical;line-height:1.55}
+select.field-input{cursor:pointer}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.star-rating{display:flex;gap:6px;align-items:center}
+.star-rating .star{font-size:22px;cursor:pointer;transition:transform 0.1s,color 0.1s}
+.star-rating .star:hover,.star-rating .star.hover{transform:scale(1.2);color:var(--star-on)}
+.rating-label{font-size:12px;color:var(--text-muted)}
+
+/* ═══════════════════════════════════════
+   DETAIL MODAL
+═══════════════════════════════════════ */
+#detail-modal .modal{max-width:720px}
+.detail-prompt-text{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px;font-family:var(--font-mono);font-size:13px;line-height:1.7;
+  color:var(--text);white-space:pre-wrap;word-break:break-word;max-height:280px;overflow-y:auto;
+}
+.detail-meta-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;
+}
+.detail-meta-item{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;display:flex;flex-direction:column;gap:3px;
+}
+.detail-meta-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:700}
+.detail-meta-value{font-size:13px;color:var(--text);font-weight:600}
+.version-history{display:flex;flex-direction:column;gap:6px}
+.version-item{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;
+  transition:border-color var(--transition),background var(--transition);
+}
+.version-item:hover{border-color:var(--border-hi);background:var(--bg-4)}
+.version-item.current{border-color:var(--accent);background:var(--accent-dim)}
+.version-num{font-family:var(--font-mono);font-size:12px;color:var(--accent);font-weight:600;flex-shrink:0}
+.version-note{font-size:12px;color:var(--text-dim);flex:1}
+.version-date{font-size:11px;color:var(--text-muted);font-family:var(--font-mono)}
+
+/* ═══════════════════════════════════════
+   SETTINGS / SYNC MODAL
+═══════════════════════════════════════ */
+#settings-modal .modal{max-width:500px}
+.sync-status{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:var(--radius);
+  background:var(--bg-3);border:1px solid var(--border);
+  font-size:13px;
+}
+.sync-dot{width:7px;height:7px;border-radius:2px;background:var(--text-muted);flex-shrink:0}
+.sync-dot.ok{background:var(--accent);box-shadow:0 0 6px var(--accent-glow)}
+.sync-dot.err{background:var(--danger)}
+.sync-dot.syncing{background:var(--warn);animation:spin 1s linear infinite}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#toast-wrap{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;gap:6px;z-index:9999;pointer-events:none;
+}
+.toast{
+  background:var(--bg-2);color:var(--text);border:1px solid var(--border);
+  border-radius:0px;padding:10px 18px;font-size:13px;font-weight:500;
+  white-space:nowrap;display:flex;align-items:center;gap:8px;
+  animation:toastIn 0.2s ease,toastOut 0.2s ease 2.5s forwards;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.toast.success{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+.toast.error{border-color:var(--danger)}
+.toast.info{border-color:var(--border-hi)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-6px)}}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:768px){
+  #sidebar{position:fixed;inset:var(--topbar-h) auto 0 0;z-index:50;width:240px;min-width:240px}
+  #sidebar.collapsed{width:0;min-width:0}
+  #sidebar-overlay{display:none;position:fixed;inset:0;background:var(--modal-overlay);z-index:49}
+  #sidebar-overlay.open{display:block}
+  #cards-container{padding:12px;grid-template-columns:1fr}
+  .topbar-search{max-width:200px}
+  .field-row{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  #topbar{padding:0 12px;gap:8px}
+  #logo span.logo-text{display:none}
+  .btn span.btn-label{display:none}
+  .topbar-search{max-width:160px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     TOPBAR
+════════════════════════════════════════ -->
+<div id="topbar">
+  <button class="btn-icon" id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
+  <div id="logo">
+    <div id="logo-dot"></div>
+    <span class="logo-text" id="logo-text">PROMPT.LIB</span>
+  </div>
+  <div class="topbar-search">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search prompts…" oninput="onSearch(this.value)"/>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-primary" onclick="openAddModal()">
+      <span>+</span><span class="btn-label" id="btn-add-label">Add Prompt</span>
+    </button>
+    <button class="btn btn-ghost" onclick="syncFromSheet()" id="sync-btn" title="Sync from Google Sheets">
+      <span id="sync-icon">⇄</span><span class="btn-label" id="btn-sync-label">Sync</span>
+    </button>
+    <button class="btn-icon" onclick="openSettings()" title="Settings">⚙</button>
+    <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme">◐</button>
+    <button class="btn-icon" onclick="toggleLang()" id="lang-btn" title="Switch language">EN</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+════════════════════════════════════════ -->
+<div id="main">
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-scroll">
+      <div class="sidebar-section">
+        <div class="sidebar-label" id="lbl-categories">Categories</div>
+        <div id="category-filters"></div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label" id="lbl-templates">Templates</div>
+        <div id="template-filters"></div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label" id="lbl-rating">Min Rating</div>
+        <div id="rating-filters"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content-area">
+    <div id="toolbar">
+      <div class="toolbar-left">
+        <span class="results-count" id="results-count">— prompts</span>
+        <div id="active-filters"></div>
+      </div>
+      <div class="toolbar-right">
+        <select class="sort-select" id="sort-select" onchange="applyFilters()">
+          <option value="date_desc">Newest first</option>
+          <option value="date_asc">Oldest first</option>
+          <option value="rating_desc">Highest rated</option>
+          <option value="title_asc">A → Z</option>
+          <option value="uses_desc">Most used</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="grid-btn" onclick="setView('grid')" title="Grid">⊞</button>
+          <button class="view-btn" id="list-btn" onclick="setView('list')" title="List">☰</button>
+        </div>
+      </div>
+    </div>
+    <div id="cards-container">
+      <div id="loading-state"><div class="spinner"></div><span id="loading-text">Loading prompts…</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ADD / EDIT MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2 id="modal-title">Add Prompt</h2>
+      <button class="btn-icon" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label" id="lbl-title">Title</label>
+        <input class="field-input" type="text" id="f-title" autocomplete="off"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" id="lbl-prompt-text">Prompt Text</label>
+        <textarea class="field-input" id="f-prompt" rows="6"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label" id="lbl-category">Category</label>
+          <input class="field-input" type="text" id="f-category" list="cat-datalist" autocomplete="off"/>
+          <datalist id="cat-datalist"></datalist>
+        </div>
+        <div class="field-group">
+          <label class="field-label" id="lbl-template">Template</label>
+          <select class="field-input" id="f-template">
+            <option value="">— None —</option>
+            <option>RTF</option><option>TAG</option><option>BAB</option>
+            <option>CARE</option><option>RISE</option><option>TREF</option>
+            <option>GRADE</option><option>MAX</option><option>META</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" id="lbl-tags-input">Tags (comma separated)</label>
+        <input class="field-input" type="text" id="f-tags" autocomplete="off"/>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label" id="lbl-use-case">Use Case</label>
+          <input class="field-input" type="text" id="f-usecase" autocomplete="off"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label" id="lbl-author">Author</label>
+          <input class="field-input" type="text" id="f-author" autocomplete="off"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" id="lbl-version-note">Version Note</label>
+        <input class="field-input" type="text" id="f-version-note" placeholder="What changed in this version?"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" id="lbl-rating">Your Rating</label>
+        <div class="star-rating" id="form-stars">
+          <span class="star off" data-v="1" onclick="setFormRating(1)">★</span>
+          <span class="star off" data-v="2" onclick="setFormRating(2)">★</span>
+          <span class="star off" data-v="3" onclick="setFormRating(3)">★</span>
+          <span class="star off" data-v="4" onclick="setFormRating(4)">★</span>
+          <span class="star off" data-v="5" onclick="setFormRating(5)">★</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAddModal()" id="btn-cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="savePrompt()" id="btn-save">Save Prompt</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DETAIL MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <h2 id="detail-title">Prompt Detail</h2>
+      <button class="btn-icon" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer" id="detail-footer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SETTINGS MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2 id="lbl-settings">Settings · الإعدادات</h2>
+      <button class="btn-icon" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Apps Script URL</label>
+        <input class="field-input" type="text" id="s-script-url" placeholder="https://script.google.com/macros/s/.../exec"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Sync Sheet Name (tab)</label>
+        <input class="field-input" type="text" id="s-sheet-name" placeholder="PromptLibrary" value="PromptLibrary"/>
+      </div>
+      <div class="sync-status" id="sync-status">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span id="sync-status-text">Not configured</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Auto-sync interval</label>
+        <select class="field-input" id="s-auto-sync">
+          <option value="0">Manual only</option>
+          <option value="60">Every 1 min</option>
+          <option value="300">Every 5 min</option>
+          <option value="600">Every 10 min</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Your Name (author default)</label>
+        <input class="field-input" type="text" id="s-author" placeholder="Trainer name"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSettings()">Close</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-wrap"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════
+   TRANSLATIONS
+═══════════════════════════════════════════════ */
+const I18N = {
+  en: {
+    'logo': 'PROMPT.LIB',
+    'btn-add': 'Add Prompt',
+    'btn-sync': 'Sync',
+    'lbl-categories': 'Categories',
+    'lbl-templates': 'Templates',
+    'lbl-rating': 'Min Rating',
+    'loading': 'Loading prompts…',
+    'no-results': 'No prompts found',
+    'no-results-sub': 'Try a different search or add a new prompt.',
+    'modal-add-title': 'Add Prompt',
+    'modal-edit-title': 'Edit Prompt',
+    'lbl-title': 'Title',
+    'lbl-prompt-text': 'Prompt Text',
+    'lbl-category': 'Category',
+    'lbl-template': 'Template',
+    'lbl-tags-input': 'Tags (comma separated)',
+    'lbl-use-case': 'Use Case',
+    'lbl-author': 'Author',
+    'lbl-version-note': 'Version Note',
+    'lbl-rating-form': 'Your Rating',
+    'btn-cancel': 'Cancel',
+    'btn-save': 'Save Prompt',
+    'btn-save-version': 'Save as New Version',
+    'all-categories': 'All Categories',
+    'all-templates': 'All Templates',
+    'any-rating': 'Any Rating',
+    'sort-newest': 'Newest first',
+    'sort-oldest': 'Oldest first',
+    'sort-rating': 'Highest rated',
+    'sort-alpha': 'A → Z',
+    'sort-uses': 'Most used',
+    'lbl-settings': 'Settings',
+    'search-placeholder': 'Search prompts…',
+    'copied': 'Prompt copied ✓',
+    'saved': 'Prompt saved ✓',
+    'deleted': 'Prompt deleted',
+    'synced': 'Synced from Sheet ✓',
+    'pushed': 'Pushed to Sheet ✓',
+    'sync-fail': 'Sync failed',
+    'version-history': 'Version History',
+    'current-version': 'Current',
+    'use-count': 'uses',
+    'detail-copy': 'Copy',
+    'detail-edit': 'Edit',
+    'detail-delete': 'Delete',
+    'detail-use': '+ Mark Used',
+    'dir': 'ltr',
+    'stars': ['', '★ Poor', '★★ Fair', '★★★ Good', '★★★★ Great', '★★★★★ Excellent'],
+  },
+  ar: {
+    'logo': 'مكتبة.برومبت',
+    'btn-add': 'إضافة برومبت',
+    'btn-sync': 'مزامنة',
+    'lbl-categories': 'الفئات',
+    'lbl-templates': 'القوالب',
+    'lbl-rating': 'أدنى تقييم',
+    'loading': 'جارٍ تحميل البرومبتس…',
+    'no-results': 'لا توجد نتائج',
+    'no-results-sub': 'جرّب بحثاً مختلفاً أو أضف برومبت جديداً.',
+    'modal-add-title': 'إضافة برومبت',
+    'modal-edit-title': 'تعديل برومبت',
+    'lbl-title': 'العنوان',
+    'lbl-prompt-text': 'نص البرومبت',
+    'lbl-category': 'الفئة',
+    'lbl-template': 'القالب',
+    'lbl-tags-input': 'الوسوم (مفصولة بفاصلة)',
+    'lbl-use-case': 'حالة الاستخدام',
+    'lbl-author': 'الكاتب',
+    'lbl-version-note': 'ملاحظة الإصدار',
+    'lbl-rating-form': 'تقييمك',
+    'btn-cancel': 'إلغاء',
+    'btn-save': 'حفظ البرومبت',
+    'btn-save-version': 'حفظ كإصدار جديد',
+    'all-categories': 'كل الفئات',
+    'all-templates': 'كل القوالب',
+    'any-rating': 'أي تقييم',
+    'sort-newest': 'الأحدث أولاً',
+    'sort-oldest': 'الأقدم أولاً',
+    'sort-rating': 'الأعلى تقييماً',
+    'sort-alpha': 'أ ← ي',
+    'sort-uses': 'الأكثر استخداماً',
+    'lbl-settings': 'الإعدادات',
+    'search-placeholder': 'ابحث في البرومبتس…',
+    'copied': 'تم نسخ البرومبت ✓',
+    'saved': 'تم حفظ البرومبت ✓',
+    'deleted': 'تم حذف البرومبت',
+    'synced': 'تمت المزامنة ✓',
+    'pushed': 'تم الرفع إلى الشيت ✓',
+    'sync-fail': 'فشل الاتصال',
+    'version-history': 'سجل الإصدارات',
+    'current-version': 'الحالي',
+    'use-count': 'استخدام',
+    'detail-copy': 'نسخ',
+    'detail-edit': 'تعديل',
+    'detail-delete': 'حذف',
+    'detail-use': '+ تسجيل استخدام',
+    'dir': 'rtl',
+    'stars': ['', '★ ضعيف', '★★ مقبول', '★★★ جيد', '★★★★ جيد جداً', '★★★★★ ممتاز'],
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const LS = {
+  DATA:     'pl_data_v2',
+  SETTINGS: 'pl_settings_v1',
+  THEME:    'pl_theme_v1',
+  LANG:     'pl_lang_v1',
+  VIEW:     'pl_view_v1',
+};
+
+let state = {
+  prompts: [],         // master list
+  filtered: [],        // after filters
+  lang: 'en',
+  theme: 'dark',
+  view: 'grid',
+  filters: { category:'', template:'', minRating:0, search:'' },
+  sort: 'date_desc',
+  editingId: null,
+  formRating: 0,
+  settings: { scriptUrl:'', sheetName:'PromptLibrary', autoSync:0, author:'' },
+  syncTimer: null,
+  sidebarOpen: true,
+};
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+function init() {
+  loadPersisted();
+  applyTheme();
+  applyLang();
+  setView(state.view, false);
+  renderSidebarFilters();
+  applyFilters();
+  loadSettings();
+  startAutoSync();
+
+  // Demo data if empty
+  if (state.prompts.length === 0) {
+    loadDemoData();
+  }
+}
+
+function loadPersisted() {
+  try {
+    const d = localStorage.getItem(LS.DATA);
+    if (d) state.prompts = JSON.parse(d);
+  } catch(e) {}
+  state.theme = localStorage.getItem(LS.THEME) || 'dark';
+  state.lang  = localStorage.getItem(LS.LANG)  || 'en';
+  state.view  = localStorage.getItem(LS.VIEW)  || 'grid';
+  try {
+    const s = localStorage.getItem(LS.SETTINGS);
+    if (s) state.settings = { ...state.settings, ...JSON.parse(s) };
+  } catch(e) {}
+}
+
+function saveData() {
+  try { localStorage.setItem(LS.DATA, JSON.stringify(state.prompts)); } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO DATA
+═══════════════════════════════════════════════ */
+function loadDemoData() {
+  const now = Date.now();
+  state.prompts = [
+    mkPrompt('Write a Training Summary', `[ROLE]\nYou are a professional instructional designer.\n\n[TASK]\nWrite a concise summary of the following training session content.\n\n[FORMAT]\nUse bullet points. Maximum 200 words. Include key takeaways.`, 'Training', 'RTF', ['summary','writing','training'], 'Content creation', 'Lead Trainer', 5, now - 86400000*2, 'Initial version'),
+    mkPrompt('Explain a Concept Simply', `[TASK]\nExplain the following concept to a complete beginner.\n\n[ACTION]\nUse a simple analogy and avoid jargon.\n\n[GOAL]\nThe reader should understand and be able to explain it to others.`, 'Education', 'TAG', ['explanation','beginner','analogy'], 'Simplification', 'Co-trainer', 4, now - 86400000*5, 'Tested with NGO group'),
+    mkPrompt('Draft a Project Proposal', `[BEFORE — Current State]\nWe have an idea but no structured proposal.\n\n[AFTER — Desired State]\nA clear, fundable project proposal ready to submit.\n\n[BRIDGE — Path Forward]\nDraft a 1-page project proposal with objectives, activities, and expected outcomes.`, 'NGO Work', 'BAB', ['proposal','project','NGO'], 'Document drafting', 'Field Trainer', 4, now - 86400000*1, 'Adapted for UN context'),
+    mkPrompt('Create a Workshop Agenda', `[CONTEXT]\nWe are running a 3-hour AI literacy workshop for mid-level staff.\n\n[ACTION]\nCreate a detailed agenda with time blocks.\n\n[RESULT]\nA ready-to-use agenda that balances theory and practice.\n\n[EXAMPLE]\nInclude a 10-minute icebreaker, two 45-minute modules, and a 30-minute Q&A.`, 'Training', 'CARE', ['agenda','workshop','planning'], 'Event planning', 'Lead Trainer', 5, now - 3600000*3, 'Used in Damascus workshop'),
+    mkPrompt('Translate and Localize Content', `[MISSION]\nAdapt training content for Arabic-speaking audiences.\n\n[AUDIENCE]\nMid-level professionals in humanitarian organizations, Arabic native speakers.\n\n[EXECUTION]\nTranslate the content accurately, then adapt cultural references and examples to the MENA context.`, 'Localization', 'MAX', ['arabic','translation','localization'], 'Content adaptation', 'Co-trainer', 3, now - 86400000*7, 'Needs review'),
+    mkPrompt('Generate Evaluation Questions', `[GOAL]\nAssess participant understanding after a training module.\n\n[REQUEST]\nGenerate 5 multiple-choice questions and 2 open-ended questions.\n\n[AUDIENCE]\nNon-technical professionals aged 25–45.\n\n[DETAIL]\nQuestions should test application, not just recall.\n\n[EXAMPLES]\nFocus on real-world scenarios from NGO or UN settings.`, 'Evaluation', 'GRADE', ['assessment','questions','evaluation'], 'Testing & evaluation', 'Lead Trainer', 5, now - 86400000*3, 'v2 — improved difficulty curve'),
+  ];
+  saveData();
+  applyFilters();
+  renderSidebarFilters();
+}
+
+function mkPrompt(title, text, category, template, tags, useCase, author, rating, date, versionNote) {
+  return {
+    id: uid(),
+    title,
+    text,
+    category,
+    template,
+    tags,
+    useCase,
+    author,
+    rating,
+    uses: Math.floor(Math.random() * 20),
+    createdAt: date || Date.now(),
+    updatedAt: date || Date.now(),
+    versions: [{
+      v: 1,
+      text,
+      note: versionNote || 'Initial',
+      date: date || Date.now()
+    }],
+    currentVersion: 1,
+  };
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+/* ═══════════════════════════════════════════════
+   LANGUAGE
+═══════════════════════════════════════════════ */
+function t(key) {
+  return (I18N[state.lang] || I18N.en)[key] || key;
+}
+
+function applyLang() {
+  const dir = t('dir');
+  document.documentElement.setAttribute('data-lang', state.lang);
+  document.documentElement.setAttribute('dir', dir);
+  document.documentElement.setAttribute('lang', state.lang);
+
+  // Update all labeled elements
+  document.getElementById('logo-text').textContent = t('logo');
+  document.getElementById('btn-add-label').textContent = t('btn-add');
+  document.getElementById('btn-sync-label').textContent = t('btn-sync');
+  document.getElementById('lbl-categories').textContent = t('lbl-categories');
+  document.getElementById('lbl-templates').textContent = t('lbl-templates');
+  document.getElementById('lbl-rating').textContent = t('lbl-rating');
+  document.getElementById('loading-text').textContent = t('loading');
+  document.getElementById('lang-btn').textContent = state.lang === 'en' ? 'AR' : 'EN';
+  document.getElementById('search-input').placeholder = t('search-placeholder');
+  document.getElementById('modal-title').textContent = state.editingId ? t('modal-edit-title') : t('modal-add-title');
+  document.getElementById('lbl-title').textContent = t('lbl-title');
+  document.getElementById('lbl-prompt-text').textContent = t('lbl-prompt-text');
+  document.getElementById('lbl-category').textContent = t('lbl-category');
+  document.getElementById('lbl-template').textContent = t('lbl-template');
+  document.getElementById('lbl-tags-input').textContent = t('lbl-tags-input');
+  document.getElementById('lbl-use-case').textContent = t('lbl-use-case');
+  document.getElementById('lbl-author').textContent = t('lbl-author');
+  document.getElementById('lbl-version-note').textContent = t('lbl-version-note');
+  document.getElementById('lbl-rating').textContent = t('lbl-rating-form');
+  document.getElementById('btn-cancel').textContent = t('btn-cancel');
+  document.getElementById('btn-save').textContent = t('btn-save');
+  document.getElementById('lbl-settings').textContent = t('lbl-settings');
+
+  // Sort select
+  const sortSel = document.getElementById('sort-select');
+  if (sortSel) {
+    sortSel.options[0].text = t('sort-newest');
+    sortSel.options[1].text = t('sort-oldest');
+    sortSel.options[2].text = t('sort-rating');
+    sortSel.options[3].text = t('sort-alpha');
+    sortSel.options[4].text = t('sort-uses');
+  }
+
+  renderSidebarFilters();
+  applyFilters();
+}
+
+function toggleLang() {
+  state.lang = state.lang === 'en' ? 'ar' : 'en';
+  localStorage.setItem(LS.LANG, state.lang);
+  applyLang();
+}
+
+/* ═══════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════ */
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.theme);
+  localStorage.setItem(LS.THEME, state.theme);
+}
+
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  applyTheme();
+  toast(state.theme === 'dark' ? '🌙 Dark' : '☀ Light', 'info');
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════ */
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  state.sidebarOpen = !state.sidebarOpen;
+  sb.classList.toggle('collapsed', !state.sidebarOpen);
+  if (window.innerWidth <= 768) ov.classList.toggle('open', state.sidebarOpen);
+}
+
+function renderSidebarFilters() {
+  // Categories
+  const cats = ['', ...new Set(state.prompts.map(p => p.category).filter(Boolean).sort())];
+  const catEl = document.getElementById('category-filters');
+  catEl.innerHTML = cats.map(c => {
+    const count = c ? state.prompts.filter(p => p.category === c).length : state.prompts.length;
+    const label = c || t('all-categories');
+    const active = state.filters.category === c;
+    return `<button class="filter-btn${active?' active':''}" onclick="setFilter('category','${esc(c)}')">${esc(label)}<span class="count">${count}</span></button>`;
+  }).join('');
+
+  // Templates
+  const templates = ['', 'RTF','TAG','BAB','CARE','RISE','TREF','GRADE','MAX','META'];
+  const tplEl = document.getElementById('template-filters');
+  tplEl.innerHTML = templates.map(tp => {
+    const count = tp ? state.prompts.filter(p => p.template === tp).length : state.prompts.length;
+    if (tp && count === 0) return '';
+    const label = tp || t('all-templates');
+    const active = state.filters.template === tp;
+    return `<button class="filter-btn${active?' active':''}" onclick="setFilter('template','${tp}')">${label}<span class="count">${count}</span></button>`;
+  }).join('');
+
+  // Ratings
+  const ratingEl = document.getElementById('rating-filters');
+  ratingEl.innerHTML = [0,3,4,5].map(r => {
+    const label = r === 0 ? t('any-rating') : '★'.repeat(r) + '+';
+    const active = state.filters.minRating === r;
+    return `<button class="filter-btn${active?' active':''}" onclick="setFilter('minRating',${r})">${label}</button>`;
+  }).join('');
+}
+
+function setFilter(key, value) {
+  state.filters[key] = value === '' ? '' : (key === 'minRating' ? Number(value) : value);
+  renderSidebarFilters();
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════
+   SEARCH & FILTER
+═══════════════════════════════════════════════ */
+function onSearch(val) {
+  state.filters.search = val.trim().toLowerCase();
+  applyFilters();
+}
+
+function applyFilters() {
+  const { category, template, minRating, search } = state.filters;
+  state.sort = document.getElementById('sort-select')?.value || state.sort;
+
+  let list = [...state.prompts];
+
+  if (category) list = list.filter(p => p.category === category);
+  if (template) list = list.filter(p => p.template === template);
+  if (minRating) list = list.filter(p => (p.rating||0) >= minRating);
+  if (search) list = list.filter(p =>
+    p.title.toLowerCase().includes(search) ||
+    p.text.toLowerCase().includes(search) ||
+    (p.tags||[]).some(tg => tg.toLowerCase().includes(search)) ||
+    (p.useCase||'').toLowerCase().includes(search) ||
+    (p.category||'').toLowerCase().includes(search)
+  );
+
+  // Sort
+  list.sort((a,b) => {
+    switch(state.sort) {
+      case 'date_asc':    return a.createdAt - b.createdAt;
+      case 'rating_desc': return (b.rating||0) - (a.rating||0);
+      case 'title_asc':   return a.title.localeCompare(b.title);
+      case 'uses_desc':   return (b.uses||0) - (a.uses||0);
+      default:            return b.createdAt - a.createdAt;
+    }
+  });
+
+  state.filtered = list;
+  renderCards();
+  updateActiveFilters();
+  document.getElementById('results-count').textContent = `${list.length} prompt${list.length !== 1 ? 's' : ''}`;
+}
+
+function updateActiveFilters() {
+  const el = document.getElementById('active-filters');
+  const chips = [];
+  if (state.filters.category) chips.push(`<span class="tag" onclick="setFilter('category','')">× ${esc(state.filters.category)}</span>`);
+  if (state.filters.template) chips.push(`<span class="tag" onclick="setFilter('template','')">× ${state.filters.template}</span>`);
+  if (state.filters.minRating) chips.push(`<span class="tag" onclick="setFilter('minRating',0)">× ${'★'.repeat(state.filters.minRating)}+</span>`);
+  el.innerHTML = chips.join('');
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER CARDS
+═══════════════════════════════════════════════ */
+function renderCards() {
+  const container = document.getElementById('cards-container');
+
+  if (state.filtered.length === 0) {
+    container.innerHTML = `
+      <div id="empty-state">
+        <div class="empty-icon">⊘</div>
+        <strong>${t('no-results')}</strong>
+        <p>${t('no-results-sub')}</p>
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()" style="margin-top:8px">+ ${t('btn-add')}</button>
+      </div>`;
+    return;
+  }
+
+  const isNew = (p) => Date.now() - p.createdAt < 86400000 * 2;
+
+  container.innerHTML = state.filtered.map(p => {
+    const stars = renderStars(p.rating || 0, p.id);
+    const tags = (p.tags||[]).slice(0,4).map(tg =>
+      `<span class="tag" onclick="event.stopPropagation();setTagFilter('${esc(tg)}')">${esc(tg)}</span>`
+    ).join('');
+    const vBadge = p.currentVersion > 1 ? `<span class="version-badge">v${p.currentVersion}</span>` : '';
+    const newBadge = isNew(p) ? `<span class="badge-new">NEW</span>` : '';
+    return `
+    <div class="prompt-card" onclick="openDetail('${p.id}')">
+      ${newBadge}
+      <div class="card-top">
+        <div class="card-title">${esc(p.title)}</div>
+        ${p.template ? `<span class="card-template-badge">${p.template}</span>` : ''}
+      </div>
+      <div class="card-body">${esc(p.text)}</div>
+      ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+      <div class="card-footer">
+        <div class="card-meta">
+          <div class="stars-display">${stars}</div>
+          ${vBadge}
+          <span class="meta-item">👁 ${p.uses||0}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();copyPrompt('${p.id}')">${t('detail-copy')}</button>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openEditModal('${p.id}')">${t('detail-edit')}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStars(rating, id, interactive) {
+  return [1,2,3,4,5].map(i => {
+    const on = i <= rating;
+    if (interactive) {
+      return `<span class="star ${on?'on':'off'}" onclick="${interactive}(${i})" data-v="${i}">★</span>`;
+    }
+    return `<span class="star ${on?'on':'off'}">★</span>`;
+  }).join('');
+}
+
+function setTagFilter(tag) {
+  state.filters.search = tag;
+  document.getElementById('search-input').value = tag;
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════
+   VIEW TOGGLE
+═══════════════════════════════════════════════ */
+function setView(v, save=true) {
+  state.view = v;
+  const c = document.getElementById('cards-container');
+  c.classList.toggle('list-view', v === 'list');
+  document.getElementById('grid-btn').classList.toggle('active', v === 'grid');
+  document.getElementById('list-btn').classList.toggle('active', v === 'list');
+  if (save) localStorage.setItem(LS.VIEW, v);
+}
+
+/* ═══════════════════════════════════════════════
+   ADD / EDIT MODAL
+═══════════════════════════════════════════════ */
+function openAddModal() {
+  state.editingId = null;
+  state.formRating = 0;
+  clearForm();
+  document.getElementById('f-author').value = state.settings.author || '';
+  document.getElementById('modal-title').textContent = t('modal-add-title');
+  document.getElementById('btn-save').textContent = t('btn-save');
+  updateFormStars(0);
+  updateCatDatalist();
+  document.getElementById('add-modal').classList.add('open');
+  document.getElementById('f-title').focus();
+}
+
+function openEditModal(id) {
+  const p = state.prompts.find(x => x.id === id);
+  if (!p) return;
+  state.editingId = id;
+  state.formRating = p.rating || 0;
+  document.getElementById('f-title').value = p.title;
+  document.getElementById('f-prompt').value = p.text;
+  document.getElementById('f-category').value = p.category || '';
+  document.getElementById('f-template').value = p.template || '';
+  document.getElementById('f-tags').value = (p.tags||[]).join(', ');
+  document.getElementById('f-usecase').value = p.useCase || '';
+  document.getElementById('f-author').value = p.author || '';
+  document.getElementById('f-version-note').value = '';
+  document.getElementById('modal-title').textContent = t('modal-edit-title');
+  document.getElementById('btn-save').textContent = t('btn-save-version');
+  updateFormStars(state.formRating);
+  updateCatDatalist();
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+  state.editingId = null;
+  clearForm();
+}
+
+function clearForm() {
+  ['f-title','f-prompt','f-category','f-tags','f-usecase','f-version-note'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-template').value = '';
+  state.formRating = 0;
+  updateFormStars(0);
+}
+
+function setFormRating(v) {
+  state.formRating = v;
+  updateFormStars(v);
+}
+
+function updateFormStars(v) {
+  document.querySelectorAll('#form-stars .star').forEach((s, i) => {
+    s.classList.toggle('on', i < v);
+    s.classList.toggle('off', i >= v);
+  });
+}
+
+function updateCatDatalist() {
+  const dl = document.getElementById('cat-datalist');
+  const cats = [...new Set(state.prompts.map(p => p.category).filter(Boolean))];
+  dl.innerHTML = cats.map(c => `<option value="${esc(c)}">`).join('');
+}
+
+function savePrompt() {
+  const title = document.getElementById('f-title').value.trim();
+  const text  = document.getElementById('f-prompt').value.trim();
+  if (!title) { toast('Title is required', 'error'); document.getElementById('f-title').focus(); return; }
+  if (!text)  { toast('Prompt text is required', 'error'); document.getElementById('f-prompt').focus(); return; }
+
+  const vNote = document.getElementById('f-version-note').value.trim() || 'Updated';
+
+  if (state.editingId) {
+    // Edit: save as new version
+    const p = state.prompts.find(x => x.id === state.editingId);
+    if (p) {
+      const newV = (p.currentVersion || 1) + 1;
+      p.versions = p.versions || [];
+      p.versions.push({ v: newV, text, note: vNote, date: Date.now() });
+      p.currentVersion = newV;
+      p.title    = title;
+      p.text     = text;
+      p.category = document.getElementById('f-category').value.trim();
+      p.template = document.getElementById('f-template').value;
+      p.tags     = document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+      p.useCase  = document.getElementById('f-usecase').value.trim();
+      p.author   = document.getElementById('f-author').value.trim();
+      p.rating   = state.formRating;
+      p.updatedAt = Date.now();
+    }
+  } else {
+    // New prompt
+    const np = mkPrompt(
+      title, text,
+      document.getElementById('f-category').value.trim(),
+      document.getElementById('f-template').value,
+      document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+      document.getElementById('f-usecase').value.trim(),
+      document.getElementById('f-author').value.trim() || state.settings.author,
+      state.formRating,
+      Date.now(),
+      vNote
+    );
+    state.prompts.unshift(np);
+  }
+
+  saveData();
+  renderSidebarFilters();
+  applyFilters();
+  closeAddModal();
+  toast(t('saved'), 'success');
+  pushToSheet();
+}
+
+/* ═══════════════════════════════════════════════
+   DETAIL MODAL
+═══════════════════════════════════════════════ */
+function openDetail(id) {
+  const p = state.prompts.find(x => x.id === id);
+  if (!p) return;
+
+  // Increment uses
+  p.uses = (p.uses || 0) + 1;
+  saveData();
+
+  document.getElementById('detail-title').textContent = p.title;
+
+  const stars = renderStars(p.rating||0, p.id);
+  const tags = (p.tags||[]).map(tg => `<span class="tag">${esc(tg)}</span>`).join('');
+  const versions = (p.versions||[]).slice().reverse().map(v => `
+    <div class="version-item${v.v === p.currentVersion?' current':''}" onclick="loadVersion('${p.id}',${v.v})">
+      <span class="version-num">v${v.v}</span>
+      <span class="version-note">${esc(v.note||'')}</span>
+      <span class="version-date">${fmtDate(v.date)}</span>
+      ${v.v === p.currentVersion ? `<span style="font-size:10px;color:var(--accent);font-weight:600">${t('current-version')}</span>` : ''}
+    </div>`).join('');
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="field-group">
+      <div class="field-label">${t('lbl-prompt-text')}</div>
+      <div class="detail-prompt-text" id="detail-prompt-text">${esc(p.text)}</div>
+    </div>
+    <div class="detail-meta-grid">
+      <div class="detail-meta-item"><div class="detail-meta-label">${t('lbl-category')}</div><div class="detail-meta-value">${esc(p.category||'—')}</div></div>
+      <div class="detail-meta-item"><div class="detail-meta-label">${t('lbl-template')}</div><div class="detail-meta-value">${p.template||'—'}</div></div>
+      <div class="detail-meta-item"><div class="detail-meta-label">${t('lbl-author')}</div><div class="detail-meta-value">${esc(p.author||'—')}</div></div>
+      <div class="detail-meta-item"><div class="detail-meta-label">${t('lbl-use-case')}</div><div class="detail-meta-value">${esc(p.useCase||'—')}</div></div>
+      <div class="detail-meta-item"><div class="detail-meta-label">Rating</div><div class="detail-meta-value"><div class="stars-display">${stars}</div></div></div>
+      <div class="detail-meta-item"><div class="detail-meta-label">${t('use-count')}</div><div class="detail-meta-value">${p.uses}</div></div>
+    </div>
+    ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+    ${versions ? `<div class="field-group"><div class="field-label">${t('version-history')}</div><div class="version-history">${versions}</div></div>` : ''}
+  `;
+
+  document.getElementById('detail-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="deletePrompt('${p.id}')">${t('detail-delete')}</button>
+    <button class="btn btn-ghost" onclick="closeDetail();openEditModal('${p.id}')">${t('detail-edit')}</button>
+    <button class="btn btn-primary" onclick="copyPrompt('${p.id}')">${t('detail-copy')}</button>
+  `;
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function loadVersion(id, v) {
+  const p = state.prompts.find(x => x.id === id);
+  if (!p) return;
+  const ver = (p.versions||[]).find(x => x.v === v);
+  if (ver) {
+    document.getElementById('detail-prompt-text').textContent = ver.text;
+    document.querySelectorAll('.version-item').forEach(el => {
+      el.classList.toggle('current', el.querySelector('.version-num').textContent === `v${v}`);
+    });
+  }
+}
+
+function closeDetail() {
+  document.getElementById('detail-modal').classList.remove('open');
+  applyFilters(); // refresh uses count
+}
+
+function deletePrompt(id) {
+  if (!confirm('Delete this prompt?')) return;
+  state.prompts = state.prompts.filter(p => p.id !== id);
+  saveData();
+  renderSidebarFilters();
+  applyFilters();
+  closeDetail();
+  toast(t('deleted'), 'info');
+  pushToSheet();
+}
+
+function copyPrompt(id) {
+  const p = state.prompts.find(x => x.id === id);
+  if (!p) return;
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(p.text).then(() => toast(t('copied'), 'success'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = p.text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast(t('copied'), 'success');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════ */
+function loadSettings() {
+  document.getElementById('s-script-url').value  = state.settings.scriptUrl || '';
+  document.getElementById('s-sheet-name').value  = state.settings.sheetName || 'PromptLibrary';
+  document.getElementById('s-auto-sync').value   = state.settings.autoSync  || 0;
+  document.getElementById('s-author').value      = state.settings.author    || '';
+  updateSyncStatus('idle');
+}
+
+function saveSettings() {
+  state.settings.scriptUrl = document.getElementById('s-script-url').value.trim();
+  state.settings.sheetName = document.getElementById('s-sheet-name').value.trim() || 'PromptLibrary';
+  state.settings.autoSync  = Number(document.getElementById('s-auto-sync').value);
+  state.settings.author    = document.getElementById('s-author').value.trim();
+  localStorage.setItem(LS.SETTINGS, JSON.stringify(state.settings));
+  startAutoSync();
+  closeSettings();
+  toast('Settings saved ✓', 'success');
+}
+
+function openSettings()  { document.getElementById('settings-modal').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+
+function updateSyncStatus(status, msg) {
+  const dot  = document.getElementById('sync-dot');
+  const text = document.getElementById('sync-status-text');
+  dot.className = 'sync-dot';
+  if (status === 'ok')      { dot.classList.add('ok');      text.textContent = msg || 'Connected'; }
+  else if (status === 'err'){ dot.classList.add('err');     text.textContent = msg || t('sync-fail'); }
+  else if (status === 'syncing'){ dot.classList.add('syncing'); text.textContent = 'Syncing…'; }
+  else { text.textContent = state.settings.scriptUrl ? 'URL set — not yet synced' : 'Not configured'; }
+}
+
+/* ═══════════════════════════════════════════════
+   GOOGLE SHEETS SYNC
+═══════════════════════════════════════════════ */
+async function syncFromSheet() {
+  const url = state.settings.scriptUrl;
+  if (!url) { openSettings(); return; }
+
+  const icon = document.getElementById('sync-icon');
+  icon.style.animation = 'spin 0.7s linear infinite';
+  updateSyncStatus('syncing');
+
+  try {
+    const res = await fetch(`${url}?action=getAll&sheet=${encodeURIComponent(state.settings.sheetName)}&_=${Date.now()}`, {
+      method: 'GET', mode: 'cors'
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Unknown error');
+
+    // Merge: remote prompts take precedence by id, new local ones are kept
+    const remoteMap = {};
+    (json.prompts || []).forEach(p => { remoteMap[p.id] = p; });
+    const localOnly = state.prompts.filter(p => !remoteMap[p.id]);
+    state.prompts = [...Object.values(remoteMap), ...localOnly];
+    state.prompts.sort((a,b) => b.createdAt - a.createdAt);
+    saveData();
+    renderSidebarFilters();
+    applyFilters();
+    updateSyncStatus('ok', `Synced ${state.prompts.length} prompts`);
+    toast(t('synced'), 'success');
+  } catch(e) {
+    updateSyncStatus('err', e.message);
+    toast(`${t('sync-fail')}: ${e.message}`, 'error');
+  } finally {
+    icon.style.animation = '';
+  }
+}
+
+async function pushToSheet() {
+  const url = state.settings.scriptUrl;
+  if (!url) return; // silent if not configured
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'saveAll',
+        sheet: state.settings.sheetName,
+        prompts: state.prompts
+      })
+    });
+    // no-cors = opaque, treat as success
+    updateSyncStatus('ok', `Last push: ${new Date().toLocaleTimeString()}`);
+  } catch(e) {
+    updateSyncStatus('err', e.message);
+  }
+}
+
+function startAutoSync() {
+  if (state.syncTimer) clearInterval(state.syncTimer);
+  if (state.settings.autoSync > 0) {
+    state.syncTimer = setInterval(syncFromSheet, state.settings.autoSync * 1000);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icons = { success:'✓', error:'✕', info:'·' };
+  el.innerHTML = `<span>${icons[type]||'·'}</span><span>${esc(msg)}</span>`;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(() => el.parentNode?.removeChild(el), 2800);
+}
+
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleDateString(state.lang === 'ar' ? 'ar-SA' : 'en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* keyboard shortcuts */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search-input').focus();
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
