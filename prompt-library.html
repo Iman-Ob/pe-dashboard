@@ -7,6 +7,12 @@
 <meta name="theme-color" content="#0d0e12"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Prompt.Lib"/>
+<meta name="application-name" content="Prompt.Lib"/>
+<meta name="description" content="Prompt Library — manage, search and sync AI prompts"/>
+<link id="pwa-manifest" rel="manifest"/>
+<link id="pwa-apple-icon" rel="apple-touch-icon"/>
 <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
 /* ═══════════════════════════════════════
@@ -23,59 +29,59 @@
 }
 
 [data-theme="dark"] {
-  --bg:            #0a0f0c;
-  --bg-2:          #101710;
-  --bg-3:          #172017;
-  --bg-4:          #1c2a1c;
-  --border:        #1e3022;
-  --border-hi:     #34d464;
-  --text:          #e2f0e6;
-  --text-muted:    #5a8a65;
-  --text-dim:      #7aaa84;
-  --accent:        #34d464;
-  --accent-dim:    rgba(52,212,100,0.15);
-  --accent-glow:   rgba(52,212,100,0.22);
-  --accent-2:      #059669;
+  --bg:            #0d0e12;
+  --bg-2:          #13141a;
+  --bg-3:          #1a1c24;
+  --bg-4:          #1f2230;
+  --border:        #252836;
+  --border-hi:     #3b82f6;
+  --text:          #e8eaf4;
+  --text-muted:    #5c6080;
+  --text-dim:      #8890b8;
+  --accent:        #3b82f6;
+  --accent-dim:    rgba(59,130,246,0.12);
+  --accent-glow:   rgba(59,130,246,0.20);
+  --accent-2:      #2563eb;
   --danger:        #f87171;
   --warn:          #fbbf24;
   --star-on:       #fbbf24;
-  --star-off:      #1e3022;
-  --tag-bg:        rgba(52,212,100,0.10);
-  --card-bg:       #101710;
-  --card-hover:    #141f14;
-  --modal-overlay: rgba(0,0,0,0.75);
-  --scrollbar:     #1e3022;
-  --scrollbar-t:   #2a4a30;
-  --badge-new:     #34d464;
-  --badge-bg:      rgba(52,212,100,0.12);
+  --star-off:      #252836;
+  --tag-bg:        rgba(59,130,246,0.10);
+  --card-bg:       #13141a;
+  --card-hover:    #181a24;
+  --modal-overlay: rgba(0,0,0,0.80);
+  --scrollbar:     #1a1c24;
+  --scrollbar-t:   #252836;
+  --badge-new:     #3b82f6;
+  --badge-bg:      rgba(59,130,246,0.12);
 }
 
 [data-theme="light"] {
-  --bg:            #f0faf2;
+  --bg:            #f1f3f8;
   --bg-2:          #ffffff;
-  --bg-3:          #e6f5ea;
-  --bg-4:          #d8f0de;
-  --border:        #b6dfc0;
-  --border-hi:     #16a34a;
-  --text:          #0a1f0e;
-  --text-muted:    #4a7a57;
-  --text-dim:      #2d6040;
-  --accent:        #16a34a;
-  --accent-dim:    rgba(22,163,74,0.10);
-  --accent-glow:   rgba(22,163,74,0.18);
-  --accent-2:      #059669;
+  --bg-3:          #e8ecf5;
+  --bg-4:          #dde2f0;
+  --border:        #c8cedf;
+  --border-hi:     #2563eb;
+  --text:          #0d0f1a;
+  --text-muted:    #6b748a;
+  --text-dim:      #4a5270;
+  --accent:        #2563eb;
+  --accent-dim:    rgba(37,99,235,0.08);
+  --accent-glow:   rgba(37,99,235,0.15);
+  --accent-2:      #1d4ed8;
   --danger:        #dc2626;
   --warn:          #d97706;
   --star-on:       #d97706;
-  --star-off:      #b6dfc0;
-  --tag-bg:        rgba(22,163,74,0.08);
+  --star-off:      #c8cedf;
+  --tag-bg:        rgba(37,99,235,0.08);
   --card-bg:       #ffffff;
-  --card-hover:    #e6f5ea;
-  --modal-overlay: rgba(0,0,0,0.5);
-  --scrollbar:     #d4edda;
-  --scrollbar-t:   #a8d4b4;
-  --badge-new:     #16a34a;
-  --badge-bg:      rgba(22,163,74,0.10);
+  --card-hover:    #f5f7ff;
+  --modal-overlay: rgba(0,0,0,0.50);
+  --scrollbar:     #dde2f0;
+  --scrollbar-t:   #bcc4d8;
+  --badge-new:     #2563eb;
+  --badge-bg:      rgba(37,99,235,0.10);
 }
 
 /* ═══════════════════════════════════════
@@ -1507,6 +1513,149 @@ document.addEventListener('keydown', e => {
    BOOT
 ═══════════════════════════════════════════════ */
 init();
+
+/* ═══════════════════════════════════════════════
+   PWA BOOTSTRAP — inline blob, no external files
+   ═══════════════════════════════════════════════ */
+(function () {
+
+  /* ── Icon: SVG مربع أزرق داكن بشعار PL ── */
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" fill="#0d0e12"/>
+    <rect x="32" y="32" width="448" height="448" fill="#13141a" stroke="#252836" stroke-width="2"/>
+    <text x="256" y="200" font-family="monospace" font-size="96" font-weight="700"
+      fill="#3b82f6" text-anchor="middle" letter-spacing="4">PROMPT</text>
+    <text x="256" y="310" font-family="monospace" font-size="96" font-weight="700"
+      fill="#e8eaf4" text-anchor="middle" letter-spacing="4">LIB</text>
+    <rect x="80" y="350" width="352" height="3" fill="#252836"/>
+    <rect x="80" y="365" width="200" height="3" fill="#3b82f6" opacity="0.6"/>
+    <rect x="80" y="380" width="120" height="3" fill="#3b82f6" opacity="0.3"/>
+  </svg>`;
+  const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+
+  const appleLink = document.getElementById('pwa-apple-icon');
+  if (appleLink) appleLink.href = iconUrl;
+
+  /* ── Manifest ── */
+  const manifest = {
+    name: 'Prompt Library',
+    short_name: 'Prompt.Lib',
+    description: 'Manage, search and sync AI prompts — مكتبة البرومبتس',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    orientation: 'any',
+    background_color: '#0d0e12',
+    theme_color: '#0d0e12',
+    lang: 'en',
+    icons: [
+      { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+    ],
+    categories: ['productivity', 'utilities', 'education'],
+    screenshots: []
+  };
+
+  const mBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const mLink = document.getElementById('pwa-manifest');
+  if (mLink) mLink.href = URL.createObjectURL(mBlob);
+
+  /* ── Service Worker: network-first, offline fallback ── */
+  const swSrc = `
+const V = 'pl-sw-v1';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(V).then(c =>
+      c.addAll([self.location.origin + self.location.pathname]).catch(()=>{})
+    )
+  );
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(ks =>
+      Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(r => { caches.open(V).then(c => c.put(e.request, r.clone())); return r; })
+      .catch(() => caches.match(e.request))
+  );
+});`;
+
+  if ('serviceWorker' in navigator) {
+    const swBlob = new Blob([swSrc], { type: 'application/javascript' });
+    navigator.serviceWorker
+      .register(URL.createObjectURL(swBlob), { scope: './' })
+      .then(() => console.log('[PWA] SW registered'))
+      .catch(e => console.warn('[PWA] SW failed (normal on file://):', e.message));
+  }
+
+  /* ── Install Banner ── */
+  let deferred = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferred = e;
+    if (document.getElementById('pwa-banner')) return;
+
+    const b = document.createElement('div');
+    b.id = 'pwa-banner';
+    b.style.cssText = [
+      'position:fixed', 'bottom:20px', 'left:50%',
+      'transform:translateX(-50%)',
+      'background:#13141a',
+      'border:1px solid #3b82f6',
+      'box-shadow:4px 4px 0px #1d4ed8',
+      'padding:12px 20px',
+      'display:flex', 'align-items:center', 'gap:12px',
+      'font-family:Dubai,system-ui,sans-serif',
+      'font-size:13px', 'color:#e8eaf4',
+      'z-index:9999', 'white-space:nowrap',
+      'border-radius:0px'
+    ].join(';');
+
+    b.innerHTML =
+      '<span style="color:#3b82f6;font-size:16px">⬇</span>' +
+      '<span>Install as app · تثبيت كتطبيق</span>' +
+      '<button onclick="window.__pwaInstall()" style="' +
+        'background:#3b82f6;color:#fff;border:none;border-radius:0;' +
+        'padding:6px 16px;font-size:12px;font-weight:700;letter-spacing:0.05em;' +
+        'text-transform:uppercase;cursor:pointer;font-family:inherit;' +
+        'box-shadow:3px 3px 0 #1d4ed8' +
+      '">Install</button>' +
+      '<button onclick="document.getElementById(\'pwa-banner\').remove()" style="' +
+        'background:transparent;border:none;color:#5c6080;' +
+        'font-size:18px;cursor:pointer;line-height:1;padding:0 4px' +
+      '">✕</button>';
+
+    document.body.appendChild(b);
+  });
+
+  window.__pwaInstall = function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(r => {
+      if (r.outcome === 'accepted') toast('Installing Prompt.Lib…', 'success');
+      const b = document.getElementById('pwa-banner');
+      if (b) b.remove();
+      deferred = null;
+    });
+  };
+
+  window.addEventListener('appinstalled', () => {
+    toast('Prompt.Lib installed ✓', 'success');
+    const b = document.getElementById('pwa-banner');
+    if (b) b.remove();
+  });
+
+})();
+
 </script>
 </body>
 </html>
