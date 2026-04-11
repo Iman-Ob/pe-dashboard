@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Demo — AI Prompt Tools | أدوات البرومبت</title>
+<link href="https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #0a0a14;
+  --bg-2:     #0f0f1e;
+  --bg-3:     #161628;
+  --border:   #1e1e38;
+  --text:     #f0f0ff;
+  --muted:    #6060a0;
+  --dim:      #9090c0;
+  --violet:   #7c6af7;
+  --violet-2: #6355e0;
+  --coral:    #ff6b6b;
+  --coral-2:  #ee5a5a;
+  --teal:     #34d399;
+  --gold:     #fbbf24;
+  --v-dim:    rgba(124,106,247,0.12);
+  --v-glow:   rgba(124,106,247,0.25);
+  --c-dim:    rgba(255,107,107,0.12);
+  --c-glow:   rgba(255,107,107,0.25);
+  --font-display: 'Syne', 'Dubai', sans-serif;
+  --font-ui:      'Dubai', system-ui, sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+  --r: 12px;
+  --t: 0.2s ease;
+}
+[data-lang="ar"] {
+  --font-display: 'Dubai', sans-serif;
+  --font-ui:      'Dubai', sans-serif;
+}
+
+/* ═══════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-ui);
+  background:var(--bg);color:var(--text);
+  font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#0a0a14}
+::-webkit-scrollbar-thumb{background:#2e2e52;border-radius:4px}
+
+/* ═══════════════════════════════════════════
+   BACKGROUND MESH
+═══════════════════════════════════════════ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124,106,247,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,107,107,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 50% 50%, rgba(52,211,153,0.03) 0%, transparent 70%);
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:64px;
+  background:rgba(10,10,20,0.85);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+}
+.nav-logo{
+  font-family:var(--font-mono);font-size:13px;font-weight:600;
+  background:linear-gradient(135deg,var(--violet),var(--coral));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;letter-spacing:0.1em;
+}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-link{
+  padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;
+  color:var(--dim);cursor:pointer;transition:all var(--t);border:1px solid transparent;
+  text-decoration:none;
+}
+.nav-link:hover{color:var(--text);border-color:var(--border)}
+.nav-link.cta{
+  background:linear-gradient(135deg,var(--violet),var(--violet-2));
+  color:#fff;border:none;
+  box-shadow:0 4px 14px var(--v-glow);
+}
+.nav-link.cta:hover{box-shadow:0 6px 20px var(--v-glow);transform:translateY(-1px)}
+.lang-toggle{
+  padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;
+  color:var(--violet);border:1.5px solid var(--violet);
+  cursor:pointer;transition:all var(--t);background:transparent;font-family:var(--font-mono);
+}
+.lang-toggle:hover{background:var(--v-dim)}
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:100px 40px 60px;text-align:center;
+  position:relative;z-index:1;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:20px;
+  background:var(--v-dim);border:1px solid rgba(124,106,247,0.3);
+  font-size:12px;font-weight:600;color:var(--violet);
+  font-family:var(--font-mono);letter-spacing:0.08em;
+  margin-bottom:32px;
+  animation:fadeUp 0.6s ease both;
+}
+.hero-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--violet);box-shadow:0 0 8px var(--violet);
+  animation:blink 2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.hero-title{
+  font-family:var(--font-display);
+  font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:800;line-height:1.05;
+  letter-spacing:-0.03em;
+  margin-bottom:24px;
+  animation:fadeUp 0.6s 0.1s ease both;
+}
+.hero-title .line-violet{
+  background:linear-gradient(135deg,var(--violet) 0%,#a78bfa 50%,var(--coral) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-subtitle{
+  font-size:clamp(1rem,2.5vw,1.25rem);color:var(--dim);
+  max-width:600px;margin:0 auto 40px;line-height:1.7;
+  animation:fadeUp 0.6s 0.2s ease both;
+}
+.hero-actions{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp 0.6s 0.3s ease both;
+}
+.btn-hero{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:var(--r);
+  font-size:15px;font-weight:700;cursor:pointer;
+  transition:all var(--t);text-decoration:none;font-family:var(--font-ui);
+  border:none;
+}
+.btn-hero.primary{
+  background:linear-gradient(135deg,var(--violet),var(--violet-2));
+  color:#fff;box-shadow:0 6px 24px var(--v-glow);
+}
+.btn-hero.primary:hover{box-shadow:0 8px 32px var(--v-glow);transform:translateY(-2px)}
+.btn-hero.secondary{
+  background:linear-gradient(135deg,var(--coral),var(--coral-2));
+  color:#fff;box-shadow:0 6px 24px var(--c-glow);
+}
+.btn-hero.secondary:hover{box-shadow:0 8px 32px var(--c-glow);transform:translateY(-2px)}
+.btn-hero.ghost{
+  background:transparent;color:var(--dim);
+  border:1.5px solid var(--border);
+}
+.btn-hero.ghost:hover{color:var(--text);border-color:var(--violet);background:var(--v-dim)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* scroll indicator */
+.scroll-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:var(--muted);font-size:11px;letter-spacing:0.1em;
+  animation:fadeUp 0.6s 0.6s ease both;
+}
+.scroll-arrow{
+  width:20px;height:20px;border-right:2px solid var(--muted);
+  border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);
+  animation:bounce 1.5s infinite;
+}
+@keyframes bounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(5px)}}
+
+/* ═══════════════════════════════════════════
+   SECTION BASE
+═══════════════════════════════════════════ */
+section{
+  position:relative;z-index:1;
+  padding:100px 40px;max-width:1100px;margin:0 auto;
+}
+.section-tag{
+  font-family:var(--font-mono);font-size:11px;font-weight:600;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--violet);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-tag::before{content:'//'; color:var(--coral); margin-right:2px;}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-weight:800;letter-spacing:-0.02em;
+  margin-bottom:16px;line-height:1.15;
+}
+.section-sub{
+  font-size:1.05rem;color:var(--dim);
+  max-width:560px;line-height:1.7;margin-bottom:56px;
+}
+
+/* ═══════════════════════════════════════════
+   TOOLS OVERVIEW
+═══════════════════════════════════════════ */
+.tools-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+.tool-card{
+  background:var(--bg-2);border:1.5px solid var(--border);
+  border-radius:20px;padding:32px;
+  transition:all 0.25s ease;position:relative;overflow:hidden;
+  cursor:pointer;text-decoration:none;color:inherit;display:block;
+}
+.tool-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  opacity:0;transition:opacity 0.25s;
+}
+.tool-card.violet::before{background:linear-gradient(90deg,var(--violet),#a78bfa)}
+.tool-card.coral::before{background:linear-gradient(90deg,var(--coral),#f97316)}
+.tool-card:hover{border-color:var(--violet);transform:translateY(-4px)}
+.tool-card:hover::before{opacity:1}
+.tool-card:hover .tool-icon{transform:scale(1.1)}
+.tool-icon{
+  font-size:36px;margin-bottom:16px;display:block;
+  transition:transform 0.25s;
+}
+.tool-name{
+  font-family:var(--font-display);font-size:1.5rem;font-weight:800;
+  margin-bottom:8px;
+}
+.tool-name .accent{color:var(--violet)}
+.tool-card.coral .tool-name .accent{color:var(--coral)}
+.tool-desc{font-size:14px;color:var(--dim);line-height:1.6;margin-bottom:20px}
+.tool-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tool-tag{
+  font-size:11px;padding:3px 10px;border-radius:20px;
+  font-family:var(--font-mono);
+}
+.tool-card.violet .tool-tag{background:var(--v-dim);color:var(--violet);border:1px solid rgba(124,106,247,0.2)}
+.tool-card.coral .tool-tag{background:var(--c-dim);color:var(--coral);border:1px solid rgba(255,107,107,0.2)}
+.tool-arrow{
+  position:absolute;bottom:24px;right:24px;
+  font-size:20px;color:var(--muted);transition:all 0.25s;
+}
+.tool-card:hover .tool-arrow{color:var(--violet);transform:translate(3px,-3px)}
+.tool-card.coral:hover .tool-arrow{color:var(--coral)}
+
+/* ═══════════════════════════════════════════
+   STEPS — DASHBOARD
+═══════════════════════════════════════════ */
+.steps-wrap{display:flex;flex-direction:column;gap:0}
+.step{
+  display:grid;grid-template-columns:60px 1fr;gap:24px;
+  padding:32px 0;border-bottom:1px solid var(--border);
+  position:relative;
+}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:16px;font-weight:700;
+  flex-shrink:0;position:relative;z-index:1;
+  background:var(--bg-3);border:1.5px solid var(--border);
+  color:var(--violet);transition:all var(--t);
+}
+.step:hover .step-num{
+  background:var(--v-dim);border-color:var(--violet);
+  box-shadow:0 0 20px var(--v-glow);
+}
+.step-content{padding-top:8px}
+.step-title{
+  font-family:var(--font-display);font-size:1.15rem;font-weight:700;
+  margin-bottom:8px;
+}
+.step-desc{font-size:14px;color:var(--dim);line-height:1.65;margin-bottom:12px}
+.step-code{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:8px;
+  padding:12px 16px;font-family:var(--font-mono);font-size:12px;
+  color:var(--teal);line-height:1.6;
+}
+.step-code .kw{color:var(--violet)}
+.step-code .str{color:var(--coral)}
+.step-code .cm{color:var(--muted)}
+
+/* ═══════════════════════════════════════════
+   TEMPLATES GRID
+═══════════════════════════════════════════ */
+.templates-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+  gap:10px;margin-bottom:40px;
+}
+.tpl-chip{
+  background:var(--bg-2);border:1.5px solid var(--border);
+  border-radius:10px;padding:14px 10px;
+  text-align:center;cursor:pointer;
+  transition:all var(--t);
+}
+.tpl-chip:hover,.tpl-chip.active{
+  background:var(--v-dim);border-color:var(--violet);
+  box-shadow:0 0 16px var(--v-glow);
+}
+.tpl-chip-id{
+  font-family:var(--font-mono);font-size:15px;font-weight:700;
+  color:var(--violet);display:block;margin-bottom:3px;
+}
+.tpl-chip-name{font-size:9px;color:var(--muted);letter-spacing:0.04em}
+
+/* Template detail panel */
+.tpl-detail{
+  background:var(--bg-2);border:1.5px solid var(--border);
+  border-radius:16px;padding:28px;
+  transition:all 0.3s ease;
+}
+.tpl-detail-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.tpl-detail-id{
+  font-family:var(--font-mono);font-size:28px;font-weight:700;
+  color:var(--violet);
+}
+.tpl-detail-fullname{
+  font-size:13px;color:var(--dim);
+}
+.tpl-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.tpl-field{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--bg-3);border-radius:8px;padding:10px 14px;
+  border:1px solid var(--border);
+}
+.tpl-field-label{
+  font-family:var(--font-mono);font-size:11px;font-weight:700;
+  color:var(--coral);text-transform:uppercase;letter-spacing:0.08em;
+  width:110px;flex-shrink:0;padding-top:2px;
+}
+.tpl-field-desc{font-size:13px;color:var(--dim);line-height:1.5}
+.tpl-preview{
+  background:#0a0a14;border:1px solid var(--border);border-radius:8px;
+  padding:16px;font-family:var(--font-mono);font-size:12px;
+  line-height:1.8;color:var(--text);white-space:pre-wrap;
+}
+.tpl-preview .lbl{color:var(--violet);font-weight:700}
+.tpl-preview .val{color:var(--dim)}
+
+/* ═══════════════════════════════════════════
+   LIBRARY STEPS
+═══════════════════════════════════════════ */
+.lib-features{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:16px;
+}
+.lib-feature{
+  background:var(--bg-2);border:1.5px solid var(--border);
+  border-radius:14px;padding:22px;
+  transition:all var(--t);
+}
+.lib-feature:hover{border-color:var(--coral);box-shadow:0 0 20px var(--c-glow)}
+.lib-feature-icon{font-size:28px;margin-bottom:10px;display:block}
+.lib-feature-title{
+  font-family:var(--font-display);font-size:1rem;font-weight:700;
+  margin-bottom:6px;color:var(--text);
+}
+.lib-feature-desc{font-size:13px;color:var(--dim);line-height:1.55}
+
+/* ═══════════════════════════════════════════
+   WORKFLOW DIAGRAM
+═══════════════════════════════════════════ */
+.workflow{
+  display:flex;align-items:center;gap:0;
+  flex-wrap:wrap;justify-content:center;
+  margin:40px 0;
+}
+.wf-step{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:20px 16px;min-width:120px;text-align:center;
+}
+.wf-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:4px;
+  transition:transform var(--t);
+}
+.wf-step:hover .wf-icon{transform:scale(1.1)}
+.wf-icon.v{background:var(--v-dim);border:1.5px solid rgba(124,106,247,0.3)}
+.wf-icon.c{background:var(--c-dim);border:1.5px solid rgba(255,107,107,0.3)}
+.wf-icon.t{background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.3)}
+.wf-icon.g{background:rgba(251,191,36,0.1);border:1.5px solid rgba(251,191,36,0.3)}
+.wf-label{font-size:12px;font-weight:600;color:var(--text)}
+.wf-sub{font-size:10px;color:var(--muted)}
+.wf-arrow{
+  font-size:20px;color:var(--border);padding:0 4px;
+  align-self:center;
+}
+
+/* ═══════════════════════════════════════════
+   CTA SECTION
+═══════════════════════════════════════════ */
+.cta-section{
+  text-align:center;padding:100px 40px;
+  position:relative;z-index:1;
+}
+.cta-inner{
+  max-width:700px;margin:0 auto;
+  background:var(--bg-2);border:1.5px solid var(--border);
+  border-radius:24px;padding:60px 48px;
+  position:relative;overflow:hidden;
+}
+.cta-inner::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(var(--violet),transparent 70%);
+  opacity:0.15;
+}
+.cta-inner::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(var(--coral),transparent 70%);
+  opacity:0.12;
+}
+.cta-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.6rem,4vw,2.4rem);
+  font-weight:800;letter-spacing:-0.02em;
+  margin-bottom:16px;position:relative;z-index:1;
+}
+.cta-sub{
+  color:var(--dim);margin-bottom:32px;font-size:1rem;
+  position:relative;z-index:1;
+}
+.cta-btns{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+  position:relative;z-index:1;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer{
+  text-align:center;padding:32px 40px;
+  border-top:1px solid var(--border);
+  color:var(--muted);font-size:12px;
+  font-family:var(--font-mono);
+  position:relative;z-index:1;
+}
+footer span{color:var(--violet)}
+
+/* ═══════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════ */
+.section-divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);
+  margin:0 40px;position:relative;z-index:1;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:768px){
+  nav{padding:0 20px}
+  .hero{padding:80px 20px 60px}
+  section{padding:70px 20px}
+  .tools-grid{grid-template-columns:1fr}
+  .step{grid-template-columns:48px 1fr;gap:16px}
+  .workflow{gap:0}
+  .wf-arrow{display:none}
+  .cta-inner{padding:40px 24px}
+  .cta-section{padding:70px 20px}
+  .templates-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:480px){
+  .hero-title{font-size:2.4rem}
+  .nav-links .nav-link:not(.cta):not(.lang-toggle){display:none}
+  .templates-grid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AI // PROMPT TOOLS</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#dashboard" id="nav-dashboard">Dashboard</a>
+    <a class="nav-link" href="#library" id="nav-library">Library</a>
+    <a class="nav-link" href="#workflow" id="nav-workflow">Workflow</a>
+    <a class="nav-link cta" href="https://iman-ob.github.io/pe-dashboard/prompt-library.html" target="_blank" id="nav-open">Open App ↗</a>
+    <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">AR</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge" id="hero-badge">LIVE SYSTEM · مباشر</div>
+  <h1 class="hero-title">
+    <span id="hero-line1">Build Better</span><br/>
+    <span class="line-violet" id="hero-line2">AI Prompts</span>
+  </h1>
+  <p class="hero-subtitle" id="hero-sub">
+    Two professional tools for AI trainers — structure your prompts, manage your library, sync with your team in real time.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-hero primary" href="https://iman-ob.github.io/pe-dashboard/prompt-dashboard.html" target="_blank" id="btn-dash">
+      ⊞ <span id="btn-dash-label">Open Dashboard</span>
+    </a>
+    <a class="btn-hero secondary" href="https://iman-ob.github.io/pe-dashboard/prompt-library.html" target="_blank" id="btn-lib">
+      ◈ <span id="btn-lib-label">Open Library</span>
+    </a>
+    <a class="btn-hero ghost" href="#dashboard" id="btn-learn">
+      <span id="btn-learn-label">Learn how ↓</span>
+    </a>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-arrow"></div>
+    <span id="scroll-label">SCROLL</span>
+  </div>
+</div>
+
+<!-- TOOLS OVERVIEW -->
+<section id="tools">
+  <div class="section-tag" id="tag-tools">TOOLS</div>
+  <h2 class="section-title" id="title-tools">Two tools. One system.</h2>
+  <p class="section-sub" id="sub-tools">Built for AI trainers working with NGOs, UN organizations, and corporate teams.</p>
+
+  <div class="tools-grid">
+    <a class="tool-card violet" href="https://iman-ob.github.io/pe-dashboard/prompt-dashboard.html" target="_blank">
+      <span class="tool-icon">⊞</span>
+      <div class="tool-name"><span class="accent">Prompt</span> Dashboard</div>
+      <p class="tool-desc" id="card-dash-desc">Fill structured prompt templates live during training sessions. Preview the assembled prompt instantly. Export to Excel. Sync with Google Sheets.</p>
+      <div class="tool-tags">
+        <span class="tool-tag">9 Templates</span>
+        <span class="tool-tag">Live Preview</span>
+        <span class="tool-tag">Excel Export</span>
+        <span class="tool-tag">Offline</span>
+      </div>
+      <span class="tool-arrow">↗</span>
+    </a>
+
+    <a class="tool-card coral" href="https://iman-ob.github.io/pe-dashboard/prompt-library.html" target="_blank">
+      <span class="tool-icon">◈</span>
+      <div class="tool-name"><span class="accent">Prompt</span> Library</div>
+      <p class="tool-desc" id="card-lib-desc">Manage, search, rate and version your prompt collection. Bilingual EN/AR interface. Live sync with Google Sheets for team collaboration.</p>
+      <div class="tool-tags">
+        <span class="tool-tag">Search & Filter</span>
+        <span class="tool-tag">Star Ratings</span>
+        <span class="tool-tag">Versioning</span>
+        <span class="tool-tag">EN / AR</span>
+      </div>
+      <span class="tool-arrow">↗</span>
+    </a>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- DASHBOARD STEPS -->
+<section id="dashboard">
+  <div class="section-tag" id="tag-dash">PROMPT DASHBOARD</div>
+  <h2 class="section-title" id="title-dash">9 templates. Fill → Preview → Export.</h2>
+  <p class="section-sub" id="sub-dash">Structured prompt engineering using the most effective frameworks for AI training.</p>
+
+  <!-- Template Selector -->
+  <div class="templates-grid" id="tpl-grid"></div>
+  <div class="tpl-detail" id="tpl-detail"></div>
+
+  <br/><br/>
+  <div class="section-tag" id="tag-how">HOW TO USE</div>
+  <div class="steps-wrap">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title" id="step1-title">Choose a Template</div>
+        <div class="step-desc" id="step1-desc">From the home screen, select one of the 9 structured templates — RTF, TAG, BAB, CARE, RISE, TREF, GRADE, MAX, or META. Each one is designed for a specific prompting goal.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title" id="step2-title">Fill the Fields</div>
+        <div class="step-desc" id="step2-desc">Type your content into each field. The assembled prompt updates live on the right panel as you type — no button needed.</div>
+        <div class="step-code">
+          <span class="lbl">[ROLE]</span><br/>
+          <span class="str">You are a senior instructional designer...</span><br/><br/>
+          <span class="lbl">[TASK]</span><br/>
+          <span class="str">Create a 3-hour AI literacy workshop agenda...</span><br/><br/>
+          <span class="lbl">[FORMAT]</span><br/>
+          <span class="str">Time-blocked table with objectives per session.</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title" id="step3-title">Copy or Export</div>
+        <div class="step-desc" id="step3-desc">Click Copy to paste the prompt directly into ChatGPT, Claude, or any AI tool. Or click Export to download all 9 templates as a formatted Excel file for offline handoff.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title" id="step4-title">Sync with Google Sheets</div>
+        <div class="step-desc" id="step4-desc">Click ⇄ Sync on any template to push your data to Google Sheets — or pull updates from co-trainers. All data persists locally between sessions automatically.</div>
+        <div class="step-code">
+          <span class="cm">// Settings → Paste your Apps Script URL once</span><br/>
+          <span class="kw">SCRIPT_URL</span> = <span class="str">"https://script.google.com/macros/s/.../exec"</span><br/><br/>
+          <span class="cm">// Then: Push ↑ or Pull ↓ any template</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- LIBRARY STEPS -->
+<section id="library">
+  <div class="section-tag" id="tag-lib">PROMPT LIBRARY</div>
+  <h2 class="section-title" id="title-lib">Your team's prompt knowledge base.</h2>
+  <p class="section-sub" id="sub-lib">Add, organize, rate and version every prompt your team creates. Live sync keeps everyone updated.</p>
+
+  <div class="lib-features">
+    <div class="lib-feature">
+      <span class="lib-feature-icon">⌕</span>
+      <div class="lib-feature-title" id="feat1-title">Search & Filter</div>
+      <div class="lib-feature-desc" id="feat1-desc">Search by title, text, tags, or use case. Filter by category, template type, or minimum star rating. Results update instantly.</div>
+    </div>
+    <div class="lib-feature">
+      <span class="lib-feature-icon">★</span>
+      <div class="lib-feature-title" id="feat2-title">Star Ratings</div>
+      <div class="lib-feature-desc" id="feat2-desc">Rate every prompt 1–5 stars. Filter by minimum rating to surface only your best-performing prompts during sessions.</div>
+    </div>
+    <div class="lib-feature">
+      <span class="lib-feature-icon">⑂</span>
+      <div class="lib-feature-title" id="feat3-title">Version History</div>
+      <div class="lib-feature-desc" id="feat3-desc">Every edit saves as a new version. View the full history, click any version to preview it, and track what changed between iterations.</div>
+    </div>
+    <div class="lib-feature">
+      <span class="lib-feature-icon">⇄</span>
+      <div class="lib-feature-title" id="feat4-title">Live Team Sync</div>
+      <div class="lib-feature-desc" id="feat4-desc">Push your prompts to Google Sheets so co-trainers can pull the latest. Auto-sync every 1, 5, or 10 minutes keeps everyone aligned.</div>
+    </div>
+    <div class="lib-feature">
+      <span class="lib-feature-icon">ع</span>
+      <div class="lib-feature-title" id="feat5-title">Bilingual EN / AR</div>
+      <div class="lib-feature-desc" id="feat5-desc">Switch the entire interface between English (LTR) and Arabic (RTL) with one click. Dubai font renders both scripts perfectly.</div>
+    </div>
+    <div class="lib-feature">
+      <span class="lib-feature-icon">📲</span>
+      <div class="lib-feature-title" id="feat6-title">Works as App</div>
+      <div class="lib-feature-desc" id="feat6-desc">Installable as a PWA on Android and desktop. Runs offline after first load — no internet required during training sessions.</div>
+    </div>
+  </div>
+
+  <br/>
+  <div class="steps-wrap">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title" id="lib-step1-title">Add a Prompt</div>
+        <div class="step-desc" id="lib-step1-desc">Click "+ Add Prompt". Fill the title, prompt text, category, template type, tags, use case, author, and star rating. Click Save — it pushes to Google Sheets automatically.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title" id="lib-step2-title">Find What You Need</div>
+        <div class="step-desc" id="lib-step2-desc">Use the search bar or sidebar filters. Click any tag on a card to filter by that tag instantly. Sort by newest, highest rated, or most used.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title" id="lib-step3-title">Use It</div>
+        <div class="step-desc" id="lib-step3-desc">Open a prompt card to see the full text, metadata, and version history. Click Copy to grab the text instantly. Each open auto-increments the usage counter.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="section-tag" id="tag-wf">WORKFLOW</div>
+  <h2 class="section-title" id="title-wf">How it all connects.</h2>
+  <p class="section-sub" id="sub-wf">From prompt design to live training to team knowledge base — one continuous workflow.</p>
+
+  <div class="workflow">
+    <div class="wf-step">
+      <div class="wf-icon v">⊞</div>
+      <div class="wf-label" id="wf1">Design</div>
+      <div class="wf-sub" id="wf1s">Dashboard</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon c">▶</div>
+      <div class="wf-label" id="wf2">Deliver</div>
+      <div class="wf-sub" id="wf2s">Training Session</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon t">◈</div>
+      <div class="wf-label" id="wf3">Save</div>
+      <div class="wf-sub" id="wf3s">Prompt Library</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon g">⇄</div>
+      <div class="wf-label" id="wf4">Sync</div>
+      <div class="wf-sub" id="wf4s">Google Sheets</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon v">♻</div>
+      <div class="wf-label" id="wf5">Reuse</div>
+      <div class="wf-sub" id="wf5s">Next Session</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title" id="cta-title">Ready to use?</h2>
+    <p class="cta-sub" id="cta-sub">Both tools are live now — open them in your browser or install as an app on your phone.</p>
+    <div class="cta-btns">
+      <a class="btn-hero primary" href="https://iman-ob.github.io/pe-dashboard/prompt-dashboard.html" target="_blank" id="cta-btn1">
+        ⊞ <span id="cta-btn1-label">Prompt Dashboard</span>
+      </a>
+      <a class="btn-hero secondary" href="https://iman-ob.github.io/pe-dashboard/prompt-library.html" target="_blank" id="cta-btn2">
+        ◈ <span id="cta-btn2-label">Prompt Library</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>AI Prompt Tools</span> · Built for AI Trainers · Damascus & Netherlands · <span id="footer-year">2025</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   TEMPLATES DATA
+═══════════════════════════════════════════ */
+const TEMPLATES = [
+  {
+    id:'RTF', name:'Role · Task · Format',
+    fields:[
+      {label:'Role',   desc:'The persona the AI should adopt'},
+      {label:'Task',   desc:'The specific action to perform'},
+      {label:'Format', desc:'The required output structure'}
+    ],
+    example:'[ROLE]\nYou are a senior instructional designer.\n\n[TASK]\nCreate a 3-hour AI literacy workshop agenda.\n\n[FORMAT]\nTime-blocked table with learning objectives.'
+  },
+  {
+    id:'TAG', name:'Task · Action · Goal',
+    fields:[
+      {label:'Task',   desc:'What is being worked on'},
+      {label:'Action', desc:'The specific step to take'},
+      {label:'Goal',   desc:'The desired end outcome'}
+    ],
+    example:'[TASK]\nRewrite our NGO funding proposal.\n\n[ACTION]\nSimplify language to B2 English level.\n\n[GOAL]\nAccessible to non-specialist donors.'
+  },
+  {
+    id:'BAB', name:'Before · After · Bridge',
+    fields:[
+      {label:'Before', desc:'Current situation or problem'},
+      {label:'After',  desc:'Desired state or outcome'},
+      {label:'Bridge', desc:'How to get from before to after'}
+    ],
+    example:'[BEFORE]\nTrainees struggle with prompt structure.\n\n[AFTER]\nTrainees write effective prompts independently.\n\n[BRIDGE]\nDesign a hands-on 45-minute exercise.'
+  },
+  {
+    id:'CARE', name:'Context · Action · Result · Example',
+    fields:[
+      {label:'Context', desc:'Background information'},
+      {label:'Action',  desc:'What to do'},
+      {label:'Result',  desc:'The expected outcome'},
+      {label:'Example', desc:'An illustrative reference'}
+    ],
+    example:'[CONTEXT]\nMid-level humanitarian staff, Arabic speakers.\n\n[ACTION]\nAdapt this training module for the audience.\n\n[RESULT]\nCulturally appropriate, B1-level content.\n\n[EXAMPLE]\nUse MENA case studies.'
+  },
+  {
+    id:'RISE', name:'Role · Input · Steps · Expectation',
+    fields:[
+      {label:'Role',        desc:'The AI\'s assigned persona'},
+      {label:'Input',       desc:'The data or material provided'},
+      {label:'Steps',       desc:'The process to follow'},
+      {label:'Expectation', desc:'What the output should achieve'}
+    ],
+    example:'[ROLE]\nYou are an expert curriculum designer.\n\n[INPUT]\nThis 5-page training report.\n\n[STEPS]\n1. Extract key themes  2. Identify gaps  3. Suggest improvements.\n\n[EXPECTATION]\nActionable recommendations, max 300 words.'
+  },
+  {
+    id:'TREF', name:'Task · Role · Examples · Format',
+    fields:[
+      {label:'Task',     desc:'The activity to perform'},
+      {label:'Role',     desc:'The AI persona to adopt'},
+      {label:'Examples', desc:'Reference examples or samples'},
+      {label:'Format',   desc:'Required output structure'}
+    ],
+    example:'[TASK]\nWrite 3 evaluation questions.\n\n[ROLE]\nExperienced assessment designer.\n\n[EXAMPLES]\nFocus on application, not recall.\n\n[FORMAT]\nMultiple choice with 4 options each.'
+  },
+  {
+    id:'GRADE', name:'Goal · Request · Audience · Detail · Examples',
+    fields:[
+      {label:'Goal',     desc:'The ultimate objective'},
+      {label:'Request',  desc:'The specific ask'},
+      {label:'Audience', desc:'Who the output is for'},
+      {label:'Detail',   desc:'Level of depth or specificity'},
+      {label:'Examples', desc:'Reference content or samples'}
+    ],
+    example:'[GOAL]\nImprove digital literacy across the organization.\n\n[REQUEST]\nCreate a 1-page quick reference guide.\n\n[AUDIENCE]\nNon-technical staff aged 25-50.\n\n[DETAIL]\nPractical steps, no jargon.\n\n[EXAMPLES]\nInclude screenshots descriptions.'
+  },
+  {
+    id:'MAX', name:'Mission · Audience · eXecution',
+    fields:[
+      {label:'Mission',   desc:'The core purpose or objective'},
+      {label:'Audience',  desc:'Who this is for'},
+      {label:'eXecution', desc:'How to carry out the task'}
+    ],
+    example:'[MISSION]\nLaunch AI adoption across 3 UN departments.\n\n[AUDIENCE]\nDepartment heads with limited tech background.\n\n[EXECUTION]\nDesign a 2-hour executive briefing with demos.'
+  },
+  {
+    id:'META', name:'Model · End-goal · Task · Audience · Constraints · Examples',
+    fields:[
+      {label:'Model',       desc:'The AI model or version targeted'},
+      {label:'End Goal',    desc:'The ultimate desired outcome'},
+      {label:'Task',        desc:'The specific task to complete'},
+      {label:'Audience',    desc:'Who will use or see the output'},
+      {label:'Constraints', desc:'Limits, rules, or boundaries'},
+      {label:'Examples',    desc:'Reference examples or analogues'}
+    ],
+    example:'[MODEL]\nClaude Sonnet 4\n\n[END GOAL]\nScale AI training to 500 staff.\n\n[TASK]\nBuild a reusable training framework.\n\n[AUDIENCE]\nHR and L&D teams.\n\n[CONSTRAINTS]\nMax 4 hours, no coding required.\n\n[EXAMPLES]\nAdapt from existing NGO best practices.'
+  }
+];
+
+/* ═══════════════════════════════════════════
+   LANGUAGE
+═══════════════════════════════════════════ */
+const T = {
+  en: {
+    'hero-badge':       'LIVE SYSTEM · مباشر',
+    'hero-line1':       'Build Better',
+    'hero-line2':       'AI Prompts',
+    'hero-sub':         'Two professional tools for AI trainers — structure your prompts, manage your library, sync with your team in real time.',
+    'btn-dash-label':   'Open Dashboard',
+    'btn-lib-label':    'Open Library',
+    'btn-learn-label':  'Learn how ↓',
+    'scroll-label':     'SCROLL',
+    'nav-dashboard':    'Dashboard',
+    'nav-library':      'Library',
+    'nav-workflow':     'Workflow',
+    'nav-open':         'Open App ↗',
+    'tag-tools':        'TOOLS',
+    'title-tools':      'Two tools. One system.',
+    'sub-tools':        'Built for AI trainers working with NGOs, UN organizations, and corporate teams.',
+    'card-dash-desc':   'Fill structured prompt templates live during training sessions. Preview the assembled prompt instantly. Export to Excel. Sync with Google Sheets.',
+    'card-lib-desc':    'Manage, search, rate and version your prompt collection. Bilingual EN/AR interface. Live sync with Google Sheets for team collaboration.',
+    'tag-dash':         'PROMPT DASHBOARD',
+    'title-dash':       '9 templates. Fill → Preview → Export.',
+    'sub-dash':         'Structured prompt engineering using the most effective frameworks for AI training.',
+    'tag-how':          'HOW TO USE',
+    'step1-title':      'Choose a Template',
+    'step1-desc':       'From the home screen, select one of the 9 structured templates — RTF, TAG, BAB, CARE, RISE, TREF, GRADE, MAX, or META. Each one is designed for a specific prompting goal.',
+    'step2-title':      'Fill the Fields',
+    'step2-desc':       'Type your content into each field. The assembled prompt updates live on the right panel as you type — no button needed.',
+    'step3-title':      'Copy or Export',
+    'step3-desc':       'Click Copy to paste the prompt directly into ChatGPT, Claude, or any AI tool. Or click Export to download all 9 templates as a formatted Excel file for offline handoff.',
+    'step4-title':      'Sync with Google Sheets',
+    'step4-desc':       'Click ⇄ Sync on any template to push your data to Google Sheets — or pull updates from co-trainers. All data persists locally between sessions automatically.',
+    'tag-lib':          'PROMPT LIBRARY',
+    'title-lib':        'Your team\'s prompt knowledge base.',
+    'sub-lib':          'Add, organize, rate and version every prompt your team creates. Live sync keeps everyone updated.',
+    'feat1-title':      'Search & Filter',
+    'feat1-desc':       'Search by title, text, tags, or use case. Filter by category, template type, or minimum star rating. Results update instantly.',
+    'feat2-title':      'Star Ratings',
+    'feat2-desc':       'Rate every prompt 1–5 stars. Filter by minimum rating to surface only your best-performing prompts during sessions.',
+    'feat3-title':      'Version History',
+    'feat3-desc':       'Every edit saves as a new version. View the full history, click any version to preview it, and track what changed between iterations.',
+    'feat4-title':      'Live Team Sync',
+    'feat4-desc':       'Push your prompts to Google Sheets so co-trainers can pull the latest. Auto-sync every 1, 5, or 10 minutes keeps everyone aligned.',
+    'feat5-title':      'Bilingual EN / AR',
+    'feat5-desc':       'Switch the entire interface between English (LTR) and Arabic (RTL) with one click. Dubai font renders both scripts perfectly.',
+    'feat6-title':      'Works as App',
+    'feat6-desc':       'Installable as a PWA on Android and desktop. Runs offline after first load — no internet required during training sessions.',
+    'lib-step1-title':  'Add a Prompt',
+    'lib-step1-desc':   'Click "+ Add Prompt". Fill the title, prompt text, category, template type, tags, use case, author, and star rating. Click Save.',
+    'lib-step2-title':  'Find What You Need',
+    'lib-step2-desc':   'Use the search bar or sidebar filters. Click any tag on a card to filter by that tag instantly. Sort by newest, highest rated, or most used.',
+    'lib-step3-title':  'Use It',
+    'lib-step3-desc':   'Open a prompt card to see the full text, metadata, and version history. Click Copy to grab the text instantly.',
+    'tag-wf':           'WORKFLOW',
+    'title-wf':         'How it all connects.',
+    'sub-wf':           'From prompt design to live training to team knowledge base — one continuous workflow.',
+    'wf1':'Design',  'wf1s':'Dashboard',
+    'wf2':'Deliver', 'wf2s':'Training Session',
+    'wf3':'Save',    'wf3s':'Prompt Library',
+    'wf4':'Sync',    'wf4s':'Google Sheets',
+    'wf5':'Reuse',   'wf5s':'Next Session',
+    'cta-title':        'Ready to use?',
+    'cta-sub':          'Both tools are live now — open them in your browser or install as an app on your phone.',
+    'cta-btn1-label':   'Prompt Dashboard',
+    'cta-btn2-label':   'Prompt Library',
+    'lang-btn':         'AR',
+  },
+  ar: {
+    'hero-badge':       'نظام مباشر · LIVE',
+    'hero-line1':       'اصنع برومبتس',
+    'hero-line2':       'أفضل واحترافية',
+    'hero-sub':         'أداتان احترافيتان للمدربين — نظّم برومبتسك، أدِر مكتبتك، وزامن مع فريقك في الوقت الفعلي.',
+    'btn-dash-label':   'افتح الداشبورد',
+    'btn-lib-label':    'افتح المكتبة',
+    'btn-learn-label':  'كيف يعمل ↓',
+    'scroll-label':     'للأسفل',
+    'nav-dashboard':    'الداشبورد',
+    'nav-library':      'المكتبة',
+    'nav-workflow':     'سير العمل',
+    'nav-open':         'افتح التطبيق ↗',
+    'tag-tools':        'الأدوات',
+    'title-tools':      'أداتان. منظومة واحدة.',
+    'sub-tools':        'مصمم للمدربين في المنظمات غير الحكومية والأمم المتحدة والشركات.',
+    'card-dash-desc':   'املأ قوالب البرومبت المنظّمة مباشرة أثناء التدريب. شاهد البرومبت المكتمل فورياً. صدّر إلى Excel. زامن مع Google Sheets.',
+    'card-lib-desc':    'أدر، ابحث، قيّم وتتبع إصدارات مجموعة برومبتسك. واجهة ثنائية اللغة. مزامنة حية مع Google Sheets.',
+    'tag-dash':         'داشبورد البرومبت',
+    'title-dash':       '9 قوالب. املأ ← اعرض ← صدّر.',
+    'sub-dash':         'هندسة برومبت منظّمة باستخدام أكثر الأطر فاعلية في التدريب على الذكاء الاصطناعي.',
+    'tag-how':          'كيفية الاستخدام',
+    'step1-title':      'اختر قالباً',
+    'step1-desc':       'من الصفحة الرئيسية، اختر أحد القوالب التسعة — RTF أو TAG أو BAB أو CARE أو RISE أو TREF أو GRADE أو MAX أو META. كل قالب مصمم لهدف برومبت محدد.',
+    'step2-title':      'اmlأ الحقول',
+    'step2-desc':       'اكتب المحتوى في كل حقل. يتحدث البرومبت المكتمل مباشرةً في اللوحة اليمنى أثناء الكتابة — دون أي ضغط على زر.',
+    'step3-title':      'انسخ أو صدّر',
+    'step3-desc':       'اضغط نسخ للصق البرومبت مباشرة في ChatGPT أو Claude أو أي أداة ذكاء اصطناعي. أو صدّر جميع القوالب التسعة كملف Excel منسق.',
+    'step4-title':      'زامن مع Google Sheets',
+    'step4-desc':       'اضغط ⇄ مزامنة على أي قالب لرفع بياناتك إلى Google Sheets، أو اسحب التحديثات من المدربين الآخرين. تُحفظ البيانات محلياً تلقائياً بين الجلسات.',
+    'tag-lib':          'مكتبة البرومبتس',
+    'title-lib':        'قاعدة معرفة برومبتس فريقك.',
+    'sub-lib':          'أضف، نظّم، قيّم وتتبع إصدارات كل برومبت يصنعه فريقك. المزامنة الحية تبقي الجميع محدثين.',
+    'feat1-title':      'البحث والتصفية',
+    'feat1-desc':       'ابحث بالعنوان أو النص أو الوسوم أو حالة الاستخدام. صفّح حسب الفئة أو نوع القالب أو أدنى تقييم بالنجوم. النتائج تتحدث فوراً.',
+    'feat2-title':      'نظام التقييم بالنجوم',
+    'feat2-desc':       'قيّم كل برومبت من 1 إلى 5 نجوم. صفّح بأدنى تقييم لإظهار أفضل البرومبتس أثناء الجلسات.',
+    'feat3-title':      'سجل الإصدارات',
+    'feat3-desc':       'كل تعديل يُحفظ كإصدار جديد. اعرض السجل الكامل، واضغط على أي إصدار لمعاينته، وتتبع ما تغيّر بين التكرارات.',
+    'feat4-title':      'مزامنة حية مع الفريق',
+    'feat4-desc':       'ارفع برومبتسك إلى Google Sheets حتى يسحب المدربون الآخرون أحدث النسخ. المزامنة التلقائية كل 1 أو 5 أو 10 دقائق.',
+    'feat5-title':      'ثنائي اللغة EN / AR',
+    'feat5-desc':       'بدّل الواجهة بالكامل بين الإنجليزية (يسار→يمين) والعربية (يمين→يسار) بضغطة واحدة. خط Dubai يدعم اللغتين.',
+    'feat6-title':      'يعمل كتطبيق',
+    'feat6-desc':       'قابل للتثبيت كـ PWA على Android وسطح المكتب. يعمل بدون إنترنت بعد التحميل الأول — لا حاجة للاتصال أثناء التدريب.',
+    'lib-step1-title':  'أضف برومبت',
+    'lib-step1-desc':   'اضغط "+ إضافة برومبت". اmlأ العنوان والنص والفئة والقالب والوسوم وحالة الاستخدام والكاتب والتقييم. اضغط حفظ.',
+    'lib-step2-title':  'ابحث عما تحتاج',
+    'lib-step2-desc':   'استخدم شريط البحث أو الفلاتر الجانبية. اضغط على أي وسم في البطاقة للتصفية فوراً. رتّب حسب الأحدث أو الأعلى تقييماً أو الأكثر استخداماً.',
+    'lib-step3-title':  'استخدمه',
+    'lib-step3-desc':   'افتح بطاقة البرومبت لعرض النص الكامل والبيانات وسجل الإصدارات. اضغط نسخ للحصول على النص فوراً.',
+    'tag-wf':           'سير العمل',
+    'title-wf':         'كيف تترابط الأدوات.',
+    'sub-wf':           'من تصميم البرومبت إلى التدريب الحي إلى قاعدة معرفة الفريق — سير عمل متكامل.',
+    'wf1':'تصميم',  'wf1s':'الداشبورد',
+    'wf2':'تقديم',  'wf2s':'جلسة التدريب',
+    'wf3':'حفظ',    'wf3s':'مكتبة البرومبتس',
+    'wf4':'مزامنة', 'wf4s':'Google Sheets',
+    'wf5':'إعادة استخدام', 'wf5s':'الجلسة القادمة',
+    'cta-title':        'جاهز للاستخدام؟',
+    'cta-sub':          'كلا الأداتين متاحتان الآن — افتحهما في المتصفح أو ثبّتهما كتطبيق على هاتفك.',
+    'cta-btn1-label':   'داشبورد البرومبت',
+    'cta-btn2-label':   'مكتبة البرومبتس',
+    'lang-btn':         'EN',
+  }
+};
+
+let lang = 'en';
+
+function toggleLang() {
+  lang = lang === 'en' ? 'ar' : 'en';
+  document.documentElement.setAttribute('data-lang', lang);
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', lang);
+  // Apply translations
+  Object.keys(T[lang]).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = T[lang][id];
+  });
+}
+
+/* ═══════════════════════════════════════════
+   TEMPLATE EXPLORER
+═══════════════════════════════════════════ */
+let activeTpl = 0;
+
+function buildTemplateExplorer() {
+  const grid = document.getElementById('tpl-grid');
+  grid.innerHTML = TEMPLATES.map((t,i) => `
+    <div class="tpl-chip${i===0?' active':''}" onclick="selectTemplate(${i})">
+      <span class="tpl-chip-id">${t.id}</span>
+      <span class="tpl-chip-name">${t.name.split('·')[0].trim()}</span>
+    </div>
+  `).join('');
+  renderTemplate(0);
+}
+
+function selectTemplate(i) {
+  activeTpl = i;
+  document.querySelectorAll('.tpl-chip').forEach((c,idx) => c.classList.toggle('active', idx===i));
+  renderTemplate(i);
+}
+
+function renderTemplate(i) {
+  const t = TEMPLATES[i];
+  const detail = document.getElementById('tpl-detail');
+  detail.innerHTML = `
+    <div class="tpl-detail-header">
+      <span class="tpl-detail-id">${t.id}</span>
+      <div>
+        <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700">${t.name}</div>
+        <div class="tpl-detail-fullname">${t.fields.length} fields</div>
+      </div>
+    </div>
+    <div class="tpl-fields">
+      ${t.fields.map(f=>`
+        <div class="tpl-field">
+          <span class="tpl-field-label">${f.label}</span>
+          <span class="tpl-field-desc">${f.desc}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px">Example Output</div>
+    <div class="tpl-preview">${t.example.replace(/\[(\w[^\]]*)\]/g,'<span class="lbl">[$1]</span>').replace(/\n/g,'\n')}</div>
+  `;
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+buildTemplateExplorer();
+</script>
+</body>
+</html>
