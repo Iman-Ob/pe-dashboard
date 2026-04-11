@@ -2,8 +2,8 @@
   "name": "Prompt Engineering Dashboard",
   "short_name": "PE Dash",
   "description": "9 structured AI prompt templates — RTF TAG BAB CARE RISE TREF GRADE MAX META for training teams",
-  "start_url": "./prompt-dashboard.html",
-  "scope": "./",
+  "start_url": "https://iman-ob.github.io/pe-dashboard/prompt-dashboard.html",
+  "scope": "https://iman-ob.github.io/pe-dashboard/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0f0f17",
@@ -31,5 +31,6 @@
   ],
   "screenshots": [],
   "related_applications": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "id": "https://iman-ob.github.io/pe-dashboard/prompt-dashboard.html"
 }
