@@ -6,7 +6,7 @@
 <title>Prompt Engineering Dashboard</title>
 
 <!-- PWA: theme color (matches dark bg) -->
-<meta name="theme-color" content="#0a0f0c"/>
+<meta name="theme-color" content="#0f0f17"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -15,7 +15,7 @@
 <meta name="description" content="Prompt Engineering Dashboard — 9 structured templates for AI training"/>
 
 <!-- PWA: manifest injected inline via JS blob (single-file safe) -->
-<link id="pwa-manifest" rel="manifest"/>
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIlByb21wdCBFbmdpbmVlcmluZyBEYXNoYm9hcmQiLCAic2hvcnRfbmFtZSI6ICJQRSBEYXNoIiwgImRlc2NyaXB0aW9uIjogIjkgc3RydWN0dXJlZCBBSSBwcm9tcHQgdGVtcGxhdGVzIGZvciB0cmFpbmluZyB0ZWFtcyBcdTIwMTQgUlRGLCBUQUcsIEJBQiwgQ0FSRSwgUklTRSwgVFJFRiwgR1JBREUsIE1BWCwgTUVUQSIsICJzdGFydF91cmwiOiAiLi9wcm9tcHQtZGFzaGJvYXJkLmh0bWwiLCAic2NvcGUiOiAiLi8iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgIm9yaWVudGF0aW9uIjogImFueSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjBmMTciLCAidGhlbWVfY29sb3IiOiAiIzBmMGYxNyIsICJsYW5nIjogImVuIiwgImNhdGVnb3JpZXMiOiBbInByb2R1Y3Rpdml0eSIsICJlZHVjYXRpb24iLCAidXRpbGl0aWVzIl0sICJpY29ucyI6IFt7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBMU1USWdOVEV5SWo0OGNtVmpkQ0IzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdjbmc5SWprMklpQm1hV3hzUFNJak1HWXdaakUzSWk4K1BISmxZM1FnZUQwaU5EQWlJSGs5SWpRd0lpQjNhV1IwYUQwaU5ETXlJaUJvWldsbmFIUTlJalF6TWlJZ2NuZzlJamN5SWlCbWFXeHNQU0lqTVRZeE5qSmhJaTgrUEhSbGVIUWdlRDBpTWpVMklpQjVQU0l5T0RBaUlHWnZiblF0Wm1GdGFXeDVQU0p0YjI1dmMzQmhZMlVpSUdadmJuUXRjMmw2WlQwaU1URXdJaUJtYjI1MExYZGxhV2RvZEQwaU56QXdJaUJtYVd4c1BTSWpOMk0yWVdZM0lpQjBaWGgwTFdGdVkyaHZjajBpYldsa1pHeGxJajVRUlM4dlBDOTBaWGgwUGp4MFpYaDBJSGc5SWpJMU5pSWdlVDBpTXpZd0lpQm1iMjUwTFdaaGJXbHNlVDBpYlc5dWIzTndZV05sSWlCbWIyNTBMWE5wZW1VOUlqWXdJaUJtYjI1MExYZGxhV2RvZEQwaU5EQXdJaUJtYVd4c1BTSWpOMk0yWVdZM0lpQjBaWGgwTFdGdVkyaHZjajBpYldsa1pHeGxJaUJ2Y0dGamFYUjVQU0l3TGpVaVBrUkJVMGc4TDNSbGVIUStQQzl6ZG1jKyIsICJzaXplcyI6ICIxOTJ4MTkyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBMU1USWdOVEV5SWo0OGNtVmpkQ0IzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdjbmc5SWprMklpQm1hV3hzUFNJak1HWXdaakUzSWk4K1BISmxZM1FnZUQwaU5EQWlJSGs5SWpRd0lpQjNhV1IwYUQwaU5ETXlJaUJvWldsbmFIUTlJalF6TWlJZ2NuZzlJamN5SWlCbWFXeHNQU0lqTVRZeE5qSmhJaTgrUEhSbGVIUWdlRDBpTWpVMklpQjVQU0l5T0RBaUlHWnZiblF0Wm1GdGFXeDVQU0p0YjI1dmMzQmhZMlVpSUdadmJuUXRjMmw2WlQwaU1URXdJaUJtYjI1MExYZGxhV2RvZEQwaU56QXdJaUJtYVd4c1BTSWpOMk0yWVdZM0lpQjBaWGgwTFdGdVkyaHZjajBpYldsa1pHeGxJajVRUlM4dlBDOTBaWGgwUGp4MFpYaDBJSGc5SWpJMU5pSWdlVDBpTXpZd0lpQm1iMjUwTFdaaGJXbHNlVDBpYlc5dWIzTndZV05sSWlCbWIyNTBMWE5wZW1VOUlqWXdJaUJtYjI1MExYZGxhV2RvZEQwaU5EQXdJaUJtYVd4c1BTSWpOMk0yWVdZM0lpQjBaWGgwTFdGdVkyaHZjajBpYldsa1pHeGxJaUJ2Y0dGamFYUjVQU0l3TGpVaVBrUkJVMGc4TDNSbGVIUStQQzl6ZG1jKyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9XX0="/>
 
 <!-- PWA: generated app icon (SVG → base64, no external asset needed) -->
 <link rel="apple-touch-icon" id="pwa-icon-link"/>
@@ -34,57 +34,57 @@
 }
 
 [data-theme="dark"] {
-  --bg: #0a0f0c;
-  --bg-2: #101710;
-  --bg-3: #172017;
-  --border: #1e3022;
-  --border-active: #34d464;
-  --text: #e2f0e6;
-  --text-muted: #5a8a65;
-  --text-dim: #7aaa84;
-  --accent: #34d464;
-  --accent-2: #059669;
-  --accent-glow: rgba(52,212,100,0.15);
-  --preview-bg: #0c1410;
-  --preview-border: #1e3222;
-  --tag-bg: rgba(52,212,100,0.10);
-  --toast-bg: #172017;
-  --card-hover: #141f14;
-  --status-filled: #34d464;
-  --status-empty: #1e3022;
-  --btn-primary: #22c55e;
-  --btn-primary-hover: #34d464;
+  --bg: #0f0f17;
+  --bg-2: #16162a;
+  --bg-3: #1e1e35;
+  --border: #2e2e52;
+  --border-active: #7c6af7;
+  --text: #f0f0ff;
+  --text-muted: #7070aa;
+  --text-dim: #9898cc;
+  --accent: #7c6af7;
+  --accent-2: #6355e0;
+  --accent-glow: rgba(124,106,247,0.25);
+  --preview-bg: #12121f;
+  --preview-border: #2e2e52;
+  --tag-bg: rgba(124,106,247,0.12);
+  --toast-bg: #1e1e35;
+  --card-hover: #1c1c34;
+  --status-filled: #34d399;
+  --status-empty: #2e2e52;
+  --btn-primary: #7c6af7;
+  --btn-primary-hover: #6355e0;
   --btn-ghost: transparent;
-  --btn-ghost-hover: #172017;
-  --scrollbar: #1e3022;
-  --scrollbar-thumb: #2a4a30;
+  --btn-ghost-hover: #1e1e35;
+  --scrollbar: #1e1e35;
+  --scrollbar-thumb: #2e2e52;
 }
 
 [data-theme="light"] {
-  --bg: #f0faf2;
+  --bg: #f5f4ff;
   --bg-2: #ffffff;
-  --bg-3: #e6f5ea;
-  --border: #b6dfc0;
-  --border-active: #16a34a;
-  --text: #0a1f0e;
-  --text-muted: #4a7a57;
-  --text-dim: #2d6040;
-  --accent: #16a34a;
-  --accent-2: #059669;
-  --accent-glow: rgba(22,163,74,0.10);
-  --preview-bg: #f5fcf7;
-  --preview-border: #c4e8ce;
-  --tag-bg: rgba(22,163,74,0.08);
-  --toast-bg: #0a1f0e;
-  --card-hover: #e6f5ea;
-  --status-filled: #16a34a;
-  --status-empty: #b6dfc0;
-  --btn-primary: #16a34a;
-  --btn-primary-hover: #15803d;
+  --bg-3: #eeecff;
+  --border: #d0ccf5;
+  --border-active: #6355e0;
+  --text: #1a1830;
+  --text-muted: #7070aa;
+  --text-dim: #4a4880;
+  --accent: #6355e0;
+  --accent-2: #5244c7;
+  --accent-glow: rgba(99,85,224,0.18);
+  --preview-bg: #f9f8ff;
+  --preview-border: #d0ccf5;
+  --tag-bg: rgba(99,85,224,0.08);
+  --toast-bg: #1a1830;
+  --card-hover: #f0eeff;
+  --status-filled: #ff6b6b;
+  --status-empty: #d0ccf5;
+  --btn-primary: #6355e0;
+  --btn-primary-hover: #5244c7;
   --btn-ghost: transparent;
-  --btn-ghost-hover: #e6f5ea;
-  --scrollbar: #d4edda;
-  --scrollbar-thumb: #a8d4b4;
+  --btn-ghost-hover: #eeecff;
+  --scrollbar: #e4e1ff;
+  --scrollbar-thumb: #c8c3f0;
 }
 
 /* ─── RESET ─── */
@@ -130,7 +130,10 @@ a { text-decoration: none; color: inherit; }
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-family: var(--font-mono);
   text-transform: uppercase;
   white-space: nowrap;
@@ -252,7 +255,8 @@ a { text-decoration: none; color: inherit; }
 .template-card:hover {
   background: var(--card-hover);
   border-color: var(--border-active);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
 }
 .card-header {
   display: flex;
@@ -520,7 +524,7 @@ a { text-decoration: none; color: inherit; }
   background: var(--btn-ghost-hover);
   color: var(--accent);
   border-color: var(--border-active);
-  box-shadow: 0 0 10px 2px var(--accent-glow), 0 0 0 1px var(--border-active);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 .nav-btn:active { transform: scale(0.97); }
 .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
@@ -1607,12 +1611,12 @@ init();
 
   /* ── 1. Generate app icon as SVG data URL ── */
   const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <rect width="512" height="512" rx="96" fill="#0a0f0c"/>
-    <rect x="40" y="40" width="432" height="432" rx="72" fill="#101710"/>
+    <rect width="512" height="512" rx="96" fill="#0f0f17"/>
+    <rect x="40" y="40" width="432" height="432" rx="72" fill="#16162a"/>
     <text x="256" y="310" font-family="monospace" font-size="210" font-weight="700"
-      fill="#34d464" text-anchor="middle">PE</text>
-    <rect x="80" y="350" width="352" height="7" rx="3.5" fill="#1e3022"/>
-    <rect x="80" y="373" width="210" height="7" rx="3.5" fill="#34d464" opacity="0.5"/>
+      fill="#7c6af7" text-anchor="middle">PE</text>
+    <rect x="80" y="350" width="352" height="7" rx="3.5" fill="#2e2e52"/>
+    <rect x="80" y="373" width="210" height="7" rx="3.5" fill="#7c6af7" opacity="0.5"/>
   </svg>`;
   const iconB64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
   const iconLink = document.getElementById('pwa-icon-link');
@@ -1627,8 +1631,8 @@ init();
     scope: './',
     display: 'standalone',
     orientation: 'any',
-    background_color: '#0a0f0c',
-    theme_color: '#0a0f0c',
+    background_color: '#0f0f17',
+    theme_color: '#0f0f17',
     lang: 'en',
     icons: [
       { src: iconB64, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
