@@ -2,8 +2,8 @@
   "name": "Prompt Library",
   "short_name": "Prompt.Lib",
   "description": "Manage, search, rate and sync AI prompts — 9 templates for training teams",
-  "start_url": "./prompt-library.html",
-  "scope": "./",
+  "start_url": "https://iman-ob.github.io/pe-dashboard/prompt-library.html",
+  "scope": "https://iman-ob.github.io/pe-dashboard/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0f0f17",
@@ -31,5 +31,6 @@
   ],
   "screenshots": [],
   "related_applications": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "id": "https://iman-ob.github.io/pe-dashboard/prompt-library.html"
 }
