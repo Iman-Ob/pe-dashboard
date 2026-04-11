@@ -1,36 +1,31 @@
 {
   "name": "Prompt Library",
   "short_name": "Prompt.Lib",
-  "description": "Manage, search, rate and sync AI prompts — 9 templates for training teams",
+  "description": "Manage, search, rate and sync AI prompts for training teams",
   "start_url": "https://iman-ob.github.io/pe-dashboard/prompt-library.html",
   "scope": "https://iman-ob.github.io/pe-dashboard/",
+  "id": "https://iman-ob.github.io/pe-dashboard/prompt-library.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0f0f17",
   "theme_color": "#0f0f17",
   "lang": "en",
-  "dir": "auto",
   "categories": [
     "productivity",
-    "education",
-    "utilities"
+    "education"
   ],
   "icons": [
     {
-      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9Ijk2IiBmaWxsPSIjMGYwZjE3Ii8+PHJlY3QgeD0iNDAiIHk9IjQwIiB3aWR0aD0iNDMyIiBoZWlnaHQ9IjQzMiIgcng9IjcyIiBmaWxsPSIjMTYxNjJhIi8+PHRleHQgeD0iMjU2IiB5PSIyOTAiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTYwIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjN2M2YWY3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QTDwvdGV4dD48cmVjdCB4PSI4MCIgeT0iMzQwIiB3aWR0aD0iMzUyIiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjMmUyZTUyIi8+PHJlY3QgeD0iODAiIHk9IjM2MCIgd2lkdGg9IjIxMCIgaGVpZ2h0PSI2IiByeD0iMyIgZmlsbD0iIzdjNmFmNyIgb3BhY2l0eT0iMC42Ii8+PC9zdmc+",
+      "src": "https://iman-ob.github.io/pe-dashboard/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9Ijk2IiBmaWxsPSIjMGYwZjE3Ii8+PHJlY3QgeD0iNDAiIHk9IjQwIiB3aWR0aD0iNDMyIiBoZWlnaHQ9IjQzMiIgcng9IjcyIiBmaWxsPSIjMTYxNjJhIi8+PHRleHQgeD0iMjU2IiB5PSIyOTAiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTYwIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjN2M2YWY3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QTDwvdGV4dD48cmVjdCB4PSI4MCIgeT0iMzQwIiB3aWR0aD0iMzUyIiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjMmUyZTUyIi8+PHJlY3QgeD0iODAiIHk9IjM2MCIgd2lkdGg9IjIxMCIgaGVpZ2h0PSI2IiByeD0iMyIgZmlsbD0iIzdjNmFmNyIgb3BhY2l0eT0iMC42Ii8+PC9zdmc+",
+      "src": "https://iman-ob.github.io/pe-dashboard/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "screenshots": [],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "id": "https://iman-ob.github.io/pe-dashboard/prompt-library.html"
+  ]
 }
