@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zero-Ambiguity Prompt System</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ef; --bg2:#eceae4; --sur:#fff; --brd:#e0dbd2; --brd2:#cec9bf;
+  --ink:#1b1916; --ink2:#4a4540; --ink3:#918b82;
+  --teal:#0d7073; --tl:#e4f3f3; --tm:#9dd4d5;
+  --rose:#b2391f; --rl:#fdf0ee; --rm:#efb0a2;
+  --amb:#8a5e08; --al:#fdf6e0; --am:#e8c96a;
+  --vio:#4e3db5; --vl:#edeaff; --vm:#bfb8f2;
+  --sag:#3a6449; --sl:#edf4f0; --sm:#a5d0b5;
+  --cod:#1e2028;
+  --shd:0 2px 10px rgba(27,25,22,.07);
+  --shd2:0 8px 36px rgba(27,25,22,.11);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;font-size:15px;line-height:1.7;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(13,112,115,.05) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1;}
+.hide{display:none!important;}
+@keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pop{0%{transform:scale(.88);}65%{transform:scale(1.05);}100%{transform:scale(1);}}
+.anim{animation:up .42s ease both;}
+
+
+/* ── SAVE TO LIBRARY BUTTON ── */
+.save-lib-btn{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;margin-top:14px;
+  padding:14px 20px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;
+  background:linear-gradient(135deg,#7c6af7,#6355e0);
+  color:#fff;
+  box-shadow:0 6px 24px rgba(124,106,247,0.35);
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.save-lib-btn::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,0);transition:background .2s;
+}
+.save-lib-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 30px rgba(124,106,247,0.45);
+}
+.save-lib-btn:hover::before{background:rgba(255,255,255,0.08)}
+.save-lib-btn:active{transform:translateY(0)}
+.save-lib-btn.done{background:linear-gradient(135deg,#34d399,#059669);}
+.save-lib-wrap{
+  background:#f0eeff;border:1.5px solid #c8c3f0;border-radius:14px;
+  padding:16px 18px;margin-top:14px;
+}
+.save-lib-wrap .save-tip{
+  font-size:11.5px;color:#6355e0;text-align:center;margin-top:8px;
+  line-height:1.5;
+}
+.save-lib-wrap .save-tip strong{font-weight:800;}
+
+/* ── HEADER ── */
+header{padding:50px 0 24px;text-align:center;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--tl);border:1.5px solid var(--tm);color:var(--teal);font-size:10.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;padding:5px 16px;border-radius:99px;margin-bottom:15px;}
+.badge::before{content:'◈';font-size:10px;}
+h1{font-size:clamp(20px,4.5vw,38px);font-weight:900;line-height:1.2;margin-bottom:8px;}
+h1 em{font-style:normal;color:var(--rose);}
+h1 strong{font-style:normal;color:var(--teal);}
+.sub{color:var(--ink3);font-size:13px;max-width:520px;margin:0 auto;}
+
+/* ── STEPPER ── */
+.stepper{display:flex;align-items:center;justify-content:center;margin:24px 0 0;}
+.st{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--ink3);transition:color .3s;}
+.st.active{color:var(--teal);}
+.st.done{color:var(--teal);opacity:.6;}
+.stn{width:26px;height:26px;border-radius:50%;border:2px solid var(--brd2);background:var(--sur);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;transition:all .3s;flex-shrink:0;}
+.st.active .stn,.st.done .stn{background:var(--teal);border-color:var(--teal);color:#fff;}
+.st.active .stn{box-shadow:0 0 0 3px var(--tl);}
+.stl{width:34px;height:2px;background:var(--brd2);transition:background .3s;flex-shrink:0;}
+.stl.done{background:var(--teal);}
+@media(max-width:480px){.st-txt{display:none;}.stl{width:16px;}}
+.dvd{border:none;border-top:1px solid var(--brd2);margin:24px 0;}
+
+/* ── CARDS ── */
+.card{background:var(--sur);border-radius:18px;border:1.5px solid var(--brd);box-shadow:var(--shd2);overflow:hidden;margin-bottom:18px;}
+.ch{padding:13px 21px;display:flex;align-items:center;gap:11px;border-bottom:1.5px solid var(--brd);background:var(--bg2);}
+.ch .ico{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ch .sup{font-size:9.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:1px;}
+.ch .ttl{font-size:14.5px;font-weight:800;color:var(--ink);}
+.cb{padding:20px 22px;}
+
+/* ── INPUTS ── */
+textarea{width:100%;min-height:85px;background:var(--bg);border:1.5px solid var(--brd2);border-radius:10px;padding:11px 14px;font-family:'Tajawal',sans-serif;font-size:15px;color:var(--ink);resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;line-height:1.65;}
+textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,112,115,.1);}
+textarea::placeholder{color:var(--ink3);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:800;padding:11px 18px;cursor:pointer;transition:background .2s,transform .15s;}
+.btn:hover:not(:disabled){transform:translateY(-1px);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;}
+.btn-w{width:100%;margin-top:13px;}
+.btn-teal{background:var(--teal);color:#fff;box-shadow:0 4px 14px rgba(13,112,115,.26);}
+.btn-teal:hover:not(:disabled){background:#0b5c5f;}
+.btn-ghost{background:var(--bg2);color:var(--ink2);border:1.5px solid var(--brd2)!important;}
+.btn-ghost:hover:not(:disabled){border-color:var(--teal)!important;color:var(--teal);background:var(--tl);}
+.sp{width:15px;height:15px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0;}
+.btn.ld .sp{display:block;}
+.btn.ld .btxt{opacity:.7;}
+.brow{display:flex;gap:9px;margin-top:13px;}
+.brow .btn{flex:1;margin-top:0;}
+
+/* ══ PHASE 2 ═══════════════════════════════════════ */
+/* simulated output */
+.sim-box{background:var(--cod);border-radius:12px;padding:15px 17px;margin-bottom:18px;}
+.sim-lbl{font-size:9.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:9px;display:flex;align-items:center;gap:7px;}
+.sim-lbl::before{content:'▶';color:#43d9a2;font-size:8px;}
+.sim-tag-bad{background:rgba(178,57,31,.25);color:#ffaa90;border:1px solid rgba(178,57,31,.4);font-size:9px;padding:2px 8px;border-radius:99px;margin-right:auto;}
+.sim-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.8;color:#b8f0e0;white-space:pre-wrap;word-break:break-word;}
+
+/* score hero */
+.sh{display:flex;align-items:center;gap:20px;padding:16px;background:var(--bg);border-radius:13px;border:1.5px solid var(--brd);margin-bottom:18px;}
+@media(max-width:440px){.sh{flex-direction:column;text-align:center;}}
+.rw{position:relative;width:86px;height:86px;flex-shrink:0;}
+.rw svg{transform:rotate(-90deg);}
+.rt{fill:none;stroke:var(--brd2);stroke-width:8;}
+.rf2{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.3s cubic-bezier(.4,0,.2,1),stroke .3s;}
+.ri{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rb{font-size:23px;font-weight:900;line-height:1;}
+.rs{font-size:10px;color:var(--ink3);font-weight:600;}
+.vd h3{font-size:14.5px;font-weight:800;margin-bottom:4px;}
+.vd p{font-size:12.5px;color:var(--ink2);line-height:1.6;}
+.vb{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:99px;margin-bottom:6px;}
+.vb-crit{background:var(--rl);color:var(--rose);border:1px solid var(--rm);}
+.vb-weak{background:var(--al);color:var(--amb);border:1px solid var(--am);}
+.vb-good{background:var(--tl);color:var(--teal);border:1px solid var(--tm);}
+
+/* elements */
+.etitle{font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:11px;}
+.elist{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.erow{display:flex;align-items:flex-start;gap:11px;border-radius:11px;padding:10px 13px;border:1.5px solid var(--brd);}
+.erow.full{background:var(--sl);border-color:var(--sm);}
+.erow.shallow{background:var(--al);border-color:var(--am);}
+.erow.missing{background:var(--rl);border-color:var(--rm);}
+.eico{font-size:15px;flex-shrink:0;width:22px;text-align:center;margin-top:1px;}
+.einfo{flex:1;}
+.ename{font-size:12.5px;font-weight:800;}
+.enote{font-size:11.5px;color:var(--ink3);line-height:1.45;margin-top:1px;}
+.erow.full    .ename{color:var(--sag);}
+.erow.shallow .ename{color:var(--amb);}
+.erow.missing .ename{color:var(--rose);}
+.ebadge{font-size:10px;font-weight:800;padding:2px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.erow.full    .ebadge{background:var(--sl);color:var(--sag);border:1px solid var(--sm);}
+.erow.shallow .ebadge{background:var(--al);color:var(--amb);border:1px solid var(--am);}
+.erow.missing .ebadge{background:var(--rl);color:var(--rose);border:1px solid var(--rm);}
+
+/* ══ PHASE 3 ═══════════════════════════════════════ */
+.pw{margin-bottom:18px;}
+.pt{display:flex;justify-content:space-between;margin-bottom:7px;}
+.pl{font-size:10px;font-weight:700;color:var(--ink3);transition:color .3s;text-align:center;flex:1;}
+.pl.active{color:var(--teal);}
+.pl.done{color:var(--teal);opacity:.5;}
+.ptrack{height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;}
+.pbar{height:100%;background:linear-gradient(to left,var(--teal),#1aabaf);border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+/* question card */
+.qcard{background:var(--sur);border-radius:17px;border:1.5px solid var(--brd);box-shadow:var(--shd2);overflow:hidden;margin-bottom:13px;animation:up .38s ease both;}
+.qh{padding:12px 19px;display:flex;align-items:center;gap:11px;border-bottom:1.5px solid var(--brd);background:var(--bg2);transition:background .3s,border-color .3s;}
+.qh.ok{background:var(--tl);border-color:var(--tm);}
+.qnum{width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(13,112,115,.3);}
+.qtag{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--teal);}
+.qttl{font-size:13.5px;font-weight:800;color:var(--ink);}
+.qbody{padding:17px 19px;}
+
+/* surgical badge */
+.surg-badge{display:inline-flex;align-items:center;gap:5px;background:var(--vl);border:1px solid var(--vm);color:var(--vio);font-size:9.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:99px;margin-bottom:9px;}
+.surg-badge::before{content:'🩺';font-size:9px;}
+
+.qtext{font-size:14.5px;font-weight:700;margin-bottom:4px;line-height:1.5;}
+.qhint{font-size:12px;color:var(--ink3);margin-bottom:11px;padding:8px 12px;background:var(--bg2);border-radius:7px;border-right:3px solid var(--tm);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px;}
+.chip{background:var(--bg2);border:1.5px solid var(--brd2);color:var(--ink2);font-size:12.5px;font-weight:600;padding:4px 12px;border-radius:99px;cursor:pointer;transition:all .18s;user-select:none;}
+.chip:hover{border-color:var(--teal);color:var(--teal);background:var(--tl);}
+.chip.sel{background:var(--tl);border-color:var(--teal);color:var(--teal);font-weight:800;}
+.aval{display:flex;align-items:flex-start;gap:8px;background:var(--tl);border:1px solid var(--tm);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--teal);font-weight:600;animation:pop .32s ease both;margin:4px 0;}
+
+/* step result */
+.sres{border-radius:13px;border:1.5px solid var(--brd);background:var(--sur);overflow:hidden;margin-bottom:13px;animation:up .4s ease both;}
+.sres-h{padding:10px 17px;background:var(--bg2);border-bottom:1.5px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;}
+.sres-title{font-size:12.5px;font-weight:800;color:var(--ink);}
+.spill{display:flex;align-items:center;gap:5px;background:var(--tl);border:1.5px solid var(--tm);border-radius:99px;padding:3px 11px;}
+.spill .sf{font-size:11.5px;color:var(--ink3);text-decoration:line-through;}
+.spill .sa{font-size:10px;color:var(--ink3);margin:0 1px;}
+.spill .st2{font-size:15px;font-weight:900;color:var(--teal);}
+.spill .sd{font-size:10.5px;color:var(--teal);font-weight:700;}
+.sres-b{padding:14px 17px;}
+
+/* output comparison — 3-4 lines showing the key difference */
+.ocmp{display:grid;grid-template-columns:1fr 32px 1fr;align-items:start;margin-bottom:12px;}
+@media(max-width:500px){.ocmp{grid-template-columns:1fr;}.oarr{display:none;}}
+.obox{border-radius:9px;border:1.5px solid var(--brd);overflow:hidden;}
+.obox.bad{border-top:2px solid var(--rose);}
+.obox.good{border-top:2px solid var(--teal);}
+.olbl{padding:6px 11px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:5px;border-bottom:1px solid var(--brd);}
+.obox.bad  .olbl{background:var(--rl);color:var(--rose);}
+.obox.good .olbl{background:var(--tl);color:var(--teal);}
+.olbl .dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.otxt{padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.75;color:var(--ink2);white-space:pre-wrap;word-break:break-word;}
+.oarr{display:flex;align-items:center;justify-content:center;padding-top:35px;}
+.oarr-ic{width:24px;height:24px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;}
+
+/* insight */
+.ins{display:flex;align-items:flex-start;gap:9px;background:var(--vl);border:1px solid var(--vm);border-radius:8px;padding:9px 13px;font-size:12.5px;color:var(--vio);line-height:1.55;}
+.ins strong{display:block;font-weight:800;font-size:11.5px;margin-bottom:1px;}
+
+/* ══ PHASE 4 ═══════════════════════════════════════ */
+.fbanner{background:linear-gradient(135deg,var(--teal),#052f31);border-radius:18px;padding:26px 22px;color:#fff;text-align:center;margin-bottom:24px;animation:up .4s ease both;position:relative;overflow:hidden;}
+.fbanner::before{content:'✦';position:absolute;top:-30px;right:-15px;font-size:160px;opacity:.05;line-height:1;pointer-events:none;}
+.fb-sc{font-size:52px;font-weight:900;line-height:1;margin-bottom:3px;}
+.fb-lb{font-size:12px;opacity:.7;font-weight:600;margin-bottom:10px;}
+.fb-ti{font-size:19px;font-weight:900;margin-bottom:5px;}
+.fb-ds{font-size:12.5px;opacity:.72;max-width:400px;margin:0 auto;}
+
+/* challenge box */
+.chbox{background:var(--sur);border-radius:14px;border:1.5px solid var(--brd);box-shadow:var(--shd2);overflow:hidden;margin-bottom:22px;animation:up .4s ease both;}
+.chbox-h{padding:12px 20px;background:var(--vl);border-bottom:1.5px solid var(--vm);display:flex;align-items:center;gap:10px;}
+.chbox-ico{width:29px;height:29px;background:var(--vio);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.chbox-title{font-size:13px;font-weight:800;color:var(--vio);}
+.chbox-b{padding:16px 20px;}
+.ch-scene{background:var(--bg);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--ink2);border:1px solid var(--brd);border-right:3px solid var(--vio);margin-bottom:13px;}
+.ch-scene strong{display:block;font-size:9.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--vio);margin-bottom:3px;}
+.ch-out{background:var(--cod);border-radius:9px;padding:13px 15px;}
+.ch-out-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.ch-out-lbl::before{content:'▶';color:#43d9a2;font-size:8px;}
+.ch-out-txt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.8;color:#b8f0e0;white-space:pre-wrap;word-break:break-word;}
+
+.sch{display:flex;align-items:center;gap:9px;margin-bottom:5px;}
+.sc-ic{width:28px;height:28px;background:var(--tl);border:1.5px solid var(--tm);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.sch h2{font-size:15.5px;font-weight:800;}
+.scd{color:var(--ink3);font-size:12.5px;margin-bottom:17px;padding-right:37px;}
+
+/* journey table */
+.jtbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--sur);border-radius:13px;border:1.5px solid var(--brd);box-shadow:var(--shd);overflow:hidden;margin-bottom:24px;}
+.jtbl thead th{padding:10px 13px;font-size:9.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);background:var(--bg2);border-bottom:1.5px solid var(--brd2);text-align:right;}
+.jtbl thead th.hb{color:var(--rose);background:var(--rl);}
+.jtbl thead th.hg{color:var(--teal);background:var(--tl);}
+.jtbl thead th.hs{color:var(--teal);background:var(--tl);}
+.jtbl tbody tr:not(:last-child) td{border-bottom:1px solid var(--brd);}
+.jtbl tbody tr:hover td{background:#f9f8f6;}
+.jtbl td{padding:11px 13px;vertical-align:top;font-size:12.5px;line-height:1.6;}
+td.jn{width:28px;text-align:center;font-weight:900;font-size:15px;color:var(--brd2);border-left:1px solid var(--brd);}
+td.jq{width:140px;border-left:1px solid var(--brd);}
+td.jb{background:#fffaf9;border-left:1px solid var(--brd);}
+td.jg{background:#f6fbfb;border-left:1px solid var(--brd);}
+td.js{text-align:center;border-left:1px solid var(--brd);width:60px;}
+.jqlbl{font-weight:800;font-size:12px;margin-bottom:2px;}
+.jtag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-bottom:3px;}
+.t0{background:var(--vl);color:var(--vio);}
+.t1{background:var(--al);color:var(--amb);}
+.t2{background:#fff0f7;color:#9a3870;}
+.t3{background:var(--tl);color:var(--teal);}
+.t4{background:var(--sl);color:var(--sag);}
+.jqans{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink3);font-style:italic;margin-top:2px;}
+.cell{font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7;border-radius:7px;padding:8px 11px;white-space:pre-wrap;word-break:break-word;}
+.cbad{color:var(--rose);background:var(--rl);border:1px solid var(--rm);}
+.cgood{color:var(--teal);background:var(--tl);border:1px solid var(--tm);}
+.sdelta{font-size:13px;font-weight:900;color:var(--teal);}
+
+/* final prompt layers */
+.fincard{background:var(--sur);border-radius:13px;border:1.5px solid var(--brd);box-shadow:var(--shd2);overflow:hidden;margin-bottom:22px;}
+.fintop{background:linear-gradient(135deg,var(--teal),#052f31);padding:15px 21px;display:flex;align-items:center;justify-content:space-between;gap:11px;flex-wrap:wrap;}
+.fintop h3{font-size:14px;font-weight:800;color:#fff;margin-bottom:1px;}
+.fintop p{font-size:10.5px;color:rgba(255,255,255,.6);}
+.cpb{background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.28);color:#fff;font-family:'Tajawal',sans-serif;font-size:12.5px;font-weight:700;padding:6px 15px;border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.cpb:hover{background:rgba(255,255,255,.26);}
+.cpb.done{background:rgba(255,255,255,.28);}
+.finbody{padding:19px 21px;}
+.fl{margin-bottom:13px;}
+.fl:last-child{margin-bottom:0;}
+.fll{font-size:9.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.fll::before{content:'';display:inline-block;width:10px;height:2px;border-radius:2px;background:currentColor;opacity:.4;}
+.l0{color:var(--vio);}.l1{color:var(--amb);}.l2{color:#9a3870;}.l3{color:var(--teal);}.l4{color:var(--sag);}
+.flv{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.85;color:var(--ink2);background:var(--bg);border:1px solid var(--brd);border-radius:8px;padding:11px 13px;white-space:pre-wrap;word-break:break-word;}
+</style>
+
+<!-- PWA -->
+<meta name="theme-color" content="#0d7073"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Prompt Pro"/>
+<meta name="application-name" content="Zero-Ambiguity Prompt System"/>
+<meta name="description" content="حوّل أي برومبت عادي إلى برومبت احترافي 10/10"/>
+<link rel="manifest" href="./manifest-optimizer.json"/>
+<link rel="apple-touch-icon" href="./icon-512.png"/>
+</head>
+<body>
+<div class="wrap">
+
+<header class="anim">
+  <div class="badge">Zero-Ambiguity Prompt System</div>
+  <h1><em>تشخيص فوري</em> ← <strong>تحسين جراحي</strong> ← 10/10</h1>
+  <p class="sub">محاكاة Output الحالي · تحليل العناصر · ٥ أسئلة تكيّفية · مخرج نموذجي + اختبار تحدي</p>
+</header>
+
+<div class="stepper anim" id="stepper">
+  <div class="st active" id="st0"><div class="stn">١</div><span class="st-txt">البرومبت</span></div>
+  <div class="stl" id="sl0"></div>
+  <div class="st" id="st1"><div class="stn">٢</div><span class="st-txt">التشخيص</span></div>
+  <div class="stl" id="sl1"></div>
+  <div class="st" id="st2"><div class="stn">٣</div><span class="st-txt">التحسين</span></div>
+  <div class="stl" id="sl2"></div>
+  <div class="st" id="st3"><div class="stn">٤</div><span class="st-txt">10/10</span></div>
+</div>
+<div class="dvd"></div>
+
+<!-- P1 INPUT -->
+<div id="p1" class="anim">
+  <div class="card">
+    <div class="ch">
+      <div class="ico" style="background:var(--rl);border:1.5px solid var(--rm);">✏️</div>
+      <div><div class="sup" style="color:var(--rose)">الخطوة الأولى</div><div class="ttl">أدخل البرومبت للتدقيق</div></div>
+    </div>
+    <div class="cb">
+      <div style="font-size:13px;color:var(--ink3);padding:9px 13px;background:var(--bg2);border-radius:8px;border-right:3px solid var(--tm);margin-bottom:13px;">
+        💡 أدخل أي برومبت — سيُحاكى <strong>Output الحالي</strong> أولاً لكشف القصور، ثم أسئلة تكيّفية تسد الفجوات النوعية تحديداً.
+      </div>
+      <textarea id="init-p" placeholder="مثال: اكتب لي بريد إلكتروني... أو: حلل هذه البيانات... أو أي برومبت"></textarea>
+      <button class="btn btn-teal btn-w" onclick="doEval()">
+        <div class="sp"></div><span class="btxt">🔬 ابدأ التحليل التشخيصي الفوري</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- P2 DIAGNOSTIC -->
+<div id="p2" class="hide">
+  <div class="card anim">
+    <div class="ch">
+      <div class="ico" style="background:var(--vl);border:1.5px solid var(--vm);">🔬</div>
+      <div><div class="sup" style="color:var(--vio)">التحليل التشخيصي الفوري</div><div class="ttl">محاكاة Output الحالي + تشريح العناصر</div></div>
+    </div>
+    <div class="cb">
+      <div class="sim-box">
+        <div class="sim-lbl">OUTPUT الحالي — ماذا سيُنتج AI الآن<span class="sim-tag-bad">قبل التحسين</span></div>
+        <div class="sim-txt" id="sim-txt"></div>
+      </div>
+      <div class="sh">
+        <div class="rw">
+          <svg width="86" height="86" viewBox="0 0 86 86">
+            <circle class="rt" cx="43" cy="43" r="35"/>
+            <circle class="rf2" id="rf" cx="43" cy="43" r="35" stroke-dasharray="219.9" stroke-dashoffset="219.9"/>
+          </svg>
+          <div class="ri"><span class="rb" id="rn">0</span><span class="rs">/10</span></div>
+        </div>
+        <div class="vd" id="vd"></div>
+      </div>
+      <div class="etitle">تشريح العناصر الخمسة — (Role · Context · Task · Constraints · Output)</div>
+      <div class="elist" id="elist"></div>
+      <button class="btn btn-teal btn-w" onclick="startQs()">🩺 ابدأ دورة التحسين الجراحي — ٥ خطوات ←</button>
+    </div>
+  </div>
+</div>
+
+<!-- P3 QUESTIONS -->
+<div id="p3" class="hide">
+  <div class="pw anim" id="pw">
+    <div class="pt" id="pt"></div>
+    <div class="ptrack"><div class="pbar" id="pbar" style="width:0%"></div></div>
+  </div>
+  <div id="qwrap"></div>
+</div>
+
+<!-- P4 FINAL -->
+<div id="p4" class="hide">
+  <div class="fbanner">
+    <div class="fb-sc">10/10</div>
+    <div class="fb-lb">Zero-Ambiguity Prompt</div>
+    <div class="fb-ti">🎯 برومبت خالٍ من الاحتمالات</div>
+    <div class="fb-ds">تم سد كل الفجوات النوعية — مخرج احترافي دقيق بنسبة 100%</div>
+  </div>
+
+  <div class="chbox">
+    <div class="chbox-h"><div class="chbox-ico">⚡</div><div class="chbox-title">اختبار التحدي — Zero-Ambiguity Test</div></div>
+    <div class="chbox-b">
+      <div class="ch-scene"><strong>الموقف الغامض المُختبَر</strong><span id="ch-scene"></span></div>
+      <div class="ch-out"><div class="ch-out-lbl">كيف يتعامل البرومبت النهائي مع هذا الموقف</div><div class="ch-out-txt" id="ch-out"></div></div>
+    </div>
+  </div>
+
+  <div class="sch anim"><div class="sc-ic">📋</div><h2>سجل التحسين النوعي</h2></div>
+  <p class="scd">تطور جودة المخرج خطوة بخطوة — وليس فقط طول البرومبت</p>
+  <div style="overflow-x:auto" class="anim">
+    <table class="jtbl">
+      <thead><tr>
+        <th style="width:28px">#</th>
+        <th style="width:138px">السؤال الجراحي</th>
+        <th class="hb">✗ Output قبل</th>
+        <th class="hg">✓ Output بعد</th>
+        <th class="hs" style="width:60px">التقييم</th>
+      </tr></thead>
+      <tbody id="jtbody"></tbody>
+    </table>
+  </div>
+
+  <div class="sch anim"><div class="sc-ic">✨</div><h2>البرومبت الاحترافي النهائي — Zero-Ambiguity</h2></div>
+  <p class="scd">٥ طبقات نوعية — كل طبقة تسد فجوة تشخيصية محددة</p>
+  <div class="fincard anim">
+    <div class="fintop">
+      <div><h3>Zero-Ambiguity Prompt ✦ 10/10</h3><p>مبني على التشخيص النوعي لبرومبتك</p></div>
+      <button class="cpb" id="cpb" onclick="copyFinal()">نسخ البرومبت</button>
+    </div>
+    <div class="finbody" id="finbody"></div>
+  </div>
+
+  <div class="sch anim"><div class="sc-ic">🎬</div><h2>المخرج النموذجي النهائي</h2></div>
+  <p class="scd">كيف يبدو Output احترافي بعد تطبيق البرومبت 10/10 على موضوعك</p>
+  <div class="sim-box anim" style="margin-bottom:22px;">
+    <div class="sim-lbl">OUTPUT النهائي — بعد التحسين الكامل<span style="background:rgba(13,112,115,.25);color:#90e0d0;border:1px solid rgba(13,112,115,.4);font-size:9px;padding:2px 8px;border-radius:99px;margin-right:auto;">10/10</span></div>
+    <div class="sim-txt" id="final-out"></div>
+  </div>
+
+  <button class="btn btn-ghost btn-w" onclick="restart()">↺ ابدأ من جديد ببرومبت آخر</button>
+
+  <!-- ── SAVE TO LIBRARY ── -->
+  <div class="save-lib-wrap">
+    <button class="save-lib-btn" id="save-lib-btn" onclick="saveToLibrary()">
+      <span>◈</span>
+      <span id="save-lib-txt">احفظ في مكتبة البرومبتس</span>
+    </button>
+    <div class="save-tip">
+      يفتح <strong>Prompt Library</strong> في تبويب جديد ويُحمّل البرومبت جاهزاً للحفظ
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   ELEMENT DEFINITIONS
+═══════════════════════════════════════════════ */
+const ELEMS = [
+  { id:'role', ico:'🎭', name:'Role — الدور والهوية',
+    fullNote:'دور متخصص ومحدد بمستوى خبرة واضح',
+    shallowNote:'دور مذكور لكن عام بدون تخصص أو عمق كافٍ',
+    missingNote:'لا يوجد أي دور محدد — AI سيجيب كمساعد عام',
+    isFull:    p => /أنت\s+(خبير|متخصص|كبير|أول|مدير)\s+\S+/.test(p),
+    isShallow: p => /أنت|كـ|بصفتك|خبير|متخصص|محلل|كاتب|مستشار|مطور|مدرب/.test(p),
+  },
+  { id:'context', ico:'🌍', name:'Context — السياق والجمهور',
+    fullNote:'سياق كامل: جمهور + غرض + خلفية واضحة',
+    shallowNote:'سياق جزئي — إما الجمهور أو الغرض لكن ليس كلاهما',
+    missingNote:'لا سياق — AI لا يعرف لمن ولماذا يكتب',
+    isFull:    p => /جمهور.{0,20}(هدف|غرض)|(هدف|غرض).{0,20}جمهور|(\bلـ|\bلمن).{3,30}(هدف|غرض|بسبب|لأن)/.test(p),
+    isShallow: p => /جمهور|مستخدم|عميل|طالب|مدير|لـ |لمن|المستهدف|الغرض|الهدف|سياق/.test(p),
+  },
+  { id:'task', ico:'🎯', name:'Task — وضوح المهمة',
+    fullNote:'مهمة واحدة محددة بفعل قابل للقياس',
+    shallowNote:'المهمة موجودة لكن تحتمل تأويلاً أو واسعة جداً',
+    missingNote:'المهمة ضبابية — AI سيختار ما يناسبه',
+    isFull:    p => p.trim().length > 25 && (p.match(/[،,]/g)||[]).length < 5 && /اكتب|حلل|أنشئ|صمم|لخص|قارن|ترجم|قيّم|افعل/.test(p),
+    isShallow: p => /اكتب|اشرح|ساعد|قدم|افعل|حلل|أنشئ|صمم/.test(p),
+  },
+  { id:'constraints', ico:'🚧', name:'Constraints — القيود والحدود',
+    fullNote:'قيود صريحة: ما يُجتنب + حدود واضحة',
+    shallowNote:'قيد واحد أو إشارة غير مباشرة للحدود',
+    missingNote:'لا قيود — AI قد يُضيف معلومات غير مرغوبة أو يتجاوز النطاق',
+    isFull:    p => /تجنب|تجنّب|لا تذكر|لا تضع|لا تستخدم|لا تتجاوز|حصراً|فقط/.test(p) && /\d+\s*(كلمة|سطر|نقطة|صفحة|دقيقة)/.test(p),
+    isShallow: p => /تجنب|تجنّب|لا تذكر|لا تضع|لا تستخدم|مثل|على غرار|قيد|فقط|حصراً/.test(p),
+  },
+  { id:'output', ico:'📤', name:'Output Format — صيغة المخرج',
+    fullNote:'تنسيق محدد + طول + بنية + معيار الجودة',
+    shallowNote:'نوع المخرج مذكور لكن بدون تفاصيل البنية أو الطول',
+    missingNote:'لا تنسيق — AI سيختار شكل الإجابة بنفسه',
+    isFull:    p => /\d+\s*(كلمة|سطر|نقطة|فقرة)/.test(p) && /(قائمة|جدول|فقرة|مقال|بريد|خطوات|تقرير|ملخص)/.test(p),
+    isShallow: p => /قائمة|جدول|فقرة|نقاط|كلمة|مقال|بريد|تقرير|ملخص|خطوات|مرقم|قصير|طويل/.test(p),
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   ADAPTIVE SURGICAL QUESTIONS POOL
+   — picked dynamically based on diagnosis
+═══════════════════════════════════════════════ */
+const Q_POOL = {
+  role: [
+    { tag:'Role Depth', tagCls:'t0',
+      q:'كيف تريد للنموذج أن يُؤطّر تفكيره في هذه المهمة — ما مستوى الخبرة والتخصص الدقيق؟',
+      surgical:'بدل "ما الدور؟" → نحدد منطق التفكير: هل يفكر كمحلل يعتمد البيانات؟ أم كمبدع يقترح؟',
+      hint:'الدور الجراحي يُحدد طريقة التفكير لا فقط الهوية',
+      ph:'مثال: خبير تسويق B2B متخصص في SaaS مع 10 سنوات خبرة في تحويل العملاء',
+      chips:['خبير تسويق رقمي B2B','محلل بيانات يعتمد الأرقام فقط','كاتب محتوى يحكي قصصاً','مستشار استراتيجي يفكر بـ frameworks','مهندس يبني حلولاً قابلة للتنفيذ'],
+      build:(p,a)=>`أنت ${a}.\n${p}`,
+      scorePlus:2,
+    },
+  ],
+  context: [
+    { tag:'Context Depth', tagCls:'t1',
+      q:'ما الحالة التي ستُستخدم فيها هذه الإجابة؟ — صف الموقف الفعلي وليس فقط الجمهور.',
+      surgical:'نسأل عن "الموقف" لا "الجمهور" — الفرق: موقف يُحدد النبرة والأولويات تلقائياً',
+      hint:'الموقف يُحدد ما يحتاجه القارئ الآن تحديداً',
+      ph:'مثال: مدير يحضّر عرضاً للمساهمين غداً، يحتاج إجابات مقنعة لا تفاصيل تقنية',
+      chips:['عرض تقديمي رسمي لمساهمين','بريد داخلي لفريق تقني','منشور عام على سوشيال ميديا','تقرير لاتخاذ قرار عاجل','مقترح لعميل محتمل'],
+      build:(p,a)=>`${p}\nالسياق والموقف: ${a}.`,
+      scorePlus:1.5,
+    },
+  ],
+  task: [
+    { tag:'Task Precision', tagCls:'t0',
+      q:'ما الحالات الاستثنائية (Edge Cases) التي قد تُربك النموذج في هذه المهمة؟',
+      surgical:'أسأل عن Edge Cases لأنها تكشف ما لم تفكر فيه — وهي مصدر الاحتمالات الغامضة',
+      hint:'كل مهمة لها حالات حدودية — تحديدها يمنع الإجابات الخاطئة',
+      ph:'مثال: إذا كانت البيانات ناقصة / إذا تعارضت المعطيات / إذا لم يكن الحل واضحاً',
+      chips:['إذا كانت المعلومات متناقضة فأعطِ الاحتمالين','إذا لم يكن الحل واضحاً فاذكر القيود','تجاهل أي معطى خارج نطاق المهمة','في حال الشك استفسر قبل الإجابة','ركّز على الحل الأكثر قابلية للتطبيق'],
+      build:(p,a)=>`${p}\nتعليمات للحالات الاستثنائية: ${a}.`,
+      scorePlus:2,
+    },
+  ],
+  constraints: [
+    { tag:'Constraint Engineering', tagCls:'t2',
+      q:'ما الذي إذا ظهر في الإجابة سيجعلها غير قابلة للاستخدام مباشرة؟',
+      surgical:'نسأل عن "ما يُفسد الإجابة" لا "ما تريده" — يكشف القيود المخفية التي لم تفكر بها',
+      hint:'القيد السلبي (ما لا تريده) أقوى من القيد الإيجابي (ما تريده)',
+      ph:'مثال: لا أريد افتراضات، لا مقدمات طويلة، لا أرقام غير موثقة، لا تكرار',
+      chips:['بدون مقدمات — ابدأ بالمحتوى مباشرة','لا افتراضات — استند للمعطيات فقط','لا أرقام دون مصدر','لا تكرار للأفكار','لا توصيات عامة — حلول محددة فقط'],
+      build:(p,a)=>`${p}\nقيود إلزامية: ${a}.`,
+      scorePlus:2,
+    },
+  ],
+  output: [
+    { tag:'Output Specification', tagCls:'t3',
+      q:'ما معيار التحقق من الجودة (Validation Criteria)؟ — كيف ستعرف أن الإجابة ناجحة؟',
+      surgical:'معيار التحقق يُحوّل "جيد" الغامضة إلى مقياس قابل للقياس — Zero-Ambiguity بحق',
+      hint:'الإجابة الناجحة لها معيار قابل للقياس — حدّده مسبقاً',
+      ph:'مثال: إجابة ناجحة = 3 نقاط قابلة للتنفيذ فوراً + لا تتجاوز 200 كلمة + تبدأ بالنتيجة',
+      chips:['ابدأ بالنتيجة الرئيسية ثم التفاصيل','كل نقطة قابلة للتنفيذ فوراً','لا تتجاوز 150 كلمة','البنية: مشكلة → سبب → حل','يجب أن تصلح للاستخدام بدون تعديل'],
+      build:(p,a)=>`${p}\nمعيار الجودة: ${a}.`,
+      scorePlus:2,
+    },
+  ],
+};
+
+/* Fallback generic surgical question for any gap */
+const Q_GENERIC = [
+  { tag:'Persona Nuance', tagCls:'t4',
+    q:'ما الأسلوب المعرفي الذي تريد للنموذج أن يتبناه — كيف يُرتب أولوياته عند التعارض؟',
+    surgical:'أسلوب الترتيب عند التعارض يُفرق بين إجابتين بنفس المعلومات',
+    hint:'عند تعارض الدقة والسرعة أو التفصيل والإيجاز — ماذا يُقدّم؟',
+    ph:'مثال: الدقة أولاً ثم الإيجاز / الحل العملي على النظري / البساطة على الشمولية',
+    chips:['الدقة أولاً حتى لو طال النص','الحل الأسرع تنفيذاً وليس الأكمل','البساطة على الشمولية','النظرة الكلية قبل التفاصيل','اعترف بعدم اليقين بدل التخمين'],
+    build:(p,a)=>`${p}\nأسلوب التفكير والأولويات: ${a}.`,
+    scorePlus:1.5,
+  },
+  { tag:'Chain of Thought', tagCls:'t4',
+    q:'هل تريد للنموذج أن يُظهر منطق تفكيره، أم يُقدم النتيجة مباشرة؟ ومتى يستفسر بدل الافتراض؟',
+    surgical:'Chain of Thought يُحسن الدقة في المهام المعقدة — لكن يُطيل الإجابة البسيطة',
+    hint:'المهام التحليلية تستفيد من إظهار التفكير — المهام التنفيذية لا',
+    ph:'مثال: قدم النتيجة مباشرة مع جملة تبرير واحدة — لا تُظهر خطوات التفكير',
+    chips:['النتيجة أولاً ثم التبرير في جملة','اعرض خطوات تفكيرك قبل الإجابة','استفسر إذا كان السؤال محتملاً لتأويلين','افترض الحالة الأكثر شيوعاً وأجب','قدم خيارين مع شرح الفرق'],
+    build:(p,a)=>`${p}\nأسلوب التقديم: ${a}.`,
+    scorePlus:1.5,
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const NUMS = ['١','٢','٣','٤','٥'];
+let origP='', builtP='', initScore=0, curScore=0;
+let diagnosis=[], adaptiveQs=[], curQ=0, answers=[], history=[];
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+function setStepper(n){
+  for(let i=0;i<4;i++){
+    document.getElementById('st'+i).className='st'+(i<n?' done':i===n?' active':'');
+    if(i<3) document.getElementById('sl'+i).className='stl'+(i<n?' done':'');
+  }
+}
+
+function animScore(target, fromVal){
+  const circ=219.9, offset=circ-(target/10)*circ;
+  const color=target<=3?'#b2391f':target<=6?'#8a5e08':'#0d7073';
+  const rf=document.getElementById('rf'), rn=document.getElementById('rn');
+  rf.style.stroke=color; rn.style.color=color;
+  setTimeout(()=>rf.style.strokeDashoffset=offset, 80);
+  let n=fromVal;
+  const iv=setInterval(()=>{ if(n>=target){rn.textContent=target;clearInterval(iv);} else rn.textContent=++n; },70);
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ═══════════════════════════════════════════════
+   SIMULATE CURRENT OUTPUT
+   (generates a realistic-looking bad AI response
+    based on the actual prompt text)
+═══════════════════════════════════════════════ */
+function simulateOutput(prompt, quality){
+  const short = prompt.slice(0,60).trim();
+  if(quality === 'poor'){
+    return `بناءً على طلبك، إليك ما يمكنني تقديمه:\n\n${short}...\n\nيمكن الإجابة على هذا الموضوع من زوايا متعددة. أولاً، من المهم فهم السياق العام. ثانياً، هناك عدة اعتبارات يجب مراعاتها. ثالثاً، يمكن تطبيق هذا بطرق مختلفة حسب الحاجة.\n\n[إجابة عامة، غير متخصصة، لا تعرف من هو الجمهور ولا ما الشكل المطلوب]`;
+  } else if(quality === 'fair'){
+    return `بخصوص موضوع "${short.slice(0,40)}...":\n\nسأتناول هذا الموضوع من المنظور المطلوب. توجد نقاط رئيسية عدة تستحق الإشارة إليها، مع مراعاة السياق المذكور.\n\n[إجابة جزئية — بعض العناصر موجودة لكن النتيجة لا تزال تحتمل تأويلات]`;
+  }
+  return `[إجابة قابلة للاستخدام لكن يمكن رفع كفاءتها]`;
+}
+
+/* ═══════════════════════════════════════════════
+   BUILD CONTEXTUAL OUTPUT EXAMPLES per step
+═══════════════════════════════════════════════ */
+function buildOutputBefore(q, prevP){
+  const s = prevP.slice(0,50).trim();
+  switch(q.tag){
+    case 'Role Depth':
+      return `"${s}..."\n→ إجابة كـ"مساعد عام":\nهذا موضوع مهم يمكن تناوله من زوايا مختلفة...`;
+    case 'Context Depth':
+      return `يكتب للجميع بنفس الأسلوب\n→ لا يعرف إن كان القارئ مبتدئاً أو خبيراً\n→ يُضيف معلومات قد لا تُلائم الموقف`;
+    case 'Task Precision':
+      return `عند غموض المهمة:\n→ يختار التفسير الأسهل\n→ يتجاهل الحالات الصعبة\n→ إجابة ناقصة تبدو كاملة`;
+    case 'Constraint Engineering':
+      return `بدون قيود:\n→ يُضيف مقدمات غير ضرورية\n→ يفترض معطيات من عنده\n→ نتيجة تحتاج تحرير قبل الاستخدام`;
+    case 'Output Specification':
+      return `بدون معيار جودة:\n→ يختار طولاً وشكلاً عشوائياً\n→ قد تصل لـ 500 كلمة أو 50 كلمة\n→ لا تعرف هل النتيجة "كافية"`;
+    default:
+      return `→ إجابة تُحتمل تأويلات متعددة\n→ النتيجة تعتمد على "مزاج" النموذج`;
+  }
+}
+
+function buildOutputAfter(q, builtP, ans){
+  const s = builtP.slice(0,45).trim();
+  switch(q.tag){
+    case 'Role Depth':
+      return `بعد إضافة الدور: "${ans.slice(0,35)}"\n→ إجابة بمنطق متخصص ودقيق\n→ يُركز على ما يهم الخبير`;
+    case 'Context Depth':
+      return `مع السياق: "${ans.slice(0,35)}"\n→ يعرف أولويات القارئ\n→ يُقدم ما يحتاجه الموقف تحديداً`;
+    case 'Task Precision':
+      return `مع تعليمات Edge Cases:\n→ "${ans.slice(0,40)}"\n→ يتعامل مع الحالات الصعبة بذكاء\n→ لا يُفاجئك بإجابة غير متوقعة`;
+    case 'Constraint Engineering':
+      return `مع القيود: "${ans.slice(0,40)}"\n→ يبدأ بالمحتوى مباشرة\n→ نتيجة جاهزة للاستخدام فوراً`;
+    case 'Output Specification':
+      return `بمعيار الجودة: "${ans.slice(0,40)}"\n→ تعرف مسبقاً شكل الإجابة الناجحة\n→ قابلة للتحقق والقياس`;
+    default:
+      return `→ إجابة محددة لا تحتمل إلا تأويلاً واحداً\n→ "${ans.slice(0,40)}"`;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   PHASE 1 → 2: EVALUATE
+═══════════════════════════════════════════════ */
+function doEval(){
+  const raw = document.getElementById('init-p').value.trim();
+  if(!raw){
+    const ta=document.getElementById('init-p');
+    ta.style.borderColor='var(--rose)';
+    ta.placeholder='⚠ الرجاء إدخال برومبت';
+    setTimeout(()=>{ ta.style.borderColor=''; ta.placeholder='مثال: اكتب لي بريد إلكتروني...'; },2000);
+    return;
+  }
+  origP=raw; builtP=raw; curQ=0; answers=[]; history=[];
+
+  // diagnose each element
+  diagnosis = ELEMS.map(e=>{
+    const full    = e.isFull(raw);
+    const shallow = !full && e.isShallow(raw);
+    const missing = !full && !shallow;
+    return { ...e, status: full?'full': shallow?'shallow':'missing' };
+  });
+
+  // score: full=2, shallow=1, missing=0 → max 10
+  initScore = Math.min(9, diagnosis.reduce((s,d)=> s+(d.status==='full'?2:d.status==='shallow'?1:0), 0));
+  if(initScore<1) initScore=1;
+  curScore=initScore;
+
+  // simulate output
+  const qual = initScore<=3?'poor':initScore<=6?'fair':'decent';
+  document.getElementById('sim-txt').textContent = simulateOutput(raw, qual);
+
+  // verdict
+  const vClass = initScore<=3?'vb-crit':initScore<=6?'vb-weak':'vb-good';
+  const vText  = initScore<=3?'تشخيص حرج — فجوات كبيرة':initScore<=6?'مقبول — عيوب نوعية مستترة':'جيد — عيوب دقيقة خفية';
+  const vDesc  = initScore<=3
+    ? 'البرومبت يفتقر لعناصر جوهرية. AI سيُنتج إجابة عامة غير قابلة للاستخدام المباشر. التحسين الجراحي ضروري.'
+    : initScore<=6
+    ? 'البرومبت يحتوي عناصر لكنها سطحية — النموذج سيملأ الفراغات بافتراضات قد تكون خاطئة.'
+    : 'البرومبت يبدو جيداً لكن الأسئلة الجراحية ستكشف العيوب المستترة التي تُؤثر على كفاءة المخرج.';
+
+  document.getElementById('vd').innerHTML=
+    `<div class="vb ${vClass}">${vText}</div><h3>التقييم الأولي: ${initScore}/10</h3><p>${vDesc}</p>`;
+
+  // elements list
+  document.getElementById('elist').innerHTML = diagnosis.map(d=>`
+    <div class="erow ${d.status}">
+      <div class="eico">${d.ico}</div>
+      <div class="einfo">
+        <div class="ename">${d.name}</div>
+        <div class="enote">${d.status==='full'?d.fullNote:d.status==='shallow'?d.shallowNote:d.missingNote}</div>
+      </div>
+      <div class="ebadge">${d.status==='full'?'✓ مكتمل':d.status==='shallow'?'⚡ سطحي':'✗ مفقود'}</div>
+    </div>`).join('');
+
+  // build adaptive questions
+  buildAdaptiveQs();
+
+  document.getElementById('p1').classList.add('hide');
+  document.getElementById('p2').classList.remove('hide');
+  setStepper(1);
+  animScore(initScore, 0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════════
+   BUILD 5 ADAPTIVE SURGICAL QUESTIONS
+   Priority: missing > shallow > always include output/constraint
+═══════════════════════════════════════════════ */
+function buildAdaptiveQs(){
+  adaptiveQs=[];
+  const order=['role','context','task','constraints','output'];
+  const used=new Set();
+
+  // First pass: pick question for each missing/shallow element
+  for(const id of order){
+    if(adaptiveQs.length>=5) break;
+    const d=diagnosis.find(x=>x.id===id);
+    if(!d) continue;
+    if((d.status==='missing'||d.status==='shallow') && Q_POOL[id]){
+      const q=Q_POOL[id][0];
+      if(!used.has(id)){ adaptiveQs.push({...q,elemId:id}); used.add(id); }
+    }
+  }
+
+  // Second pass: fill remaining with generic surgical questions
+  for(const gq of [...Q_GENERIC]){
+    if(adaptiveQs.length>=5) break;
+    const key=gq.tag;
+    if(!used.has(key)){ adaptiveQs.push({...gq,elemId:'generic'}); used.add(key); }
+  }
+
+  // Third pass: fill any still missing from full elements
+  for(const id of order){
+    if(adaptiveQs.length>=5) break;
+    if(!used.has(id) && Q_POOL[id]){
+      adaptiveQs.push({...Q_POOL[id][0],elemId:id});
+      used.add(id);
+    }
+  }
+
+  adaptiveQs=adaptiveQs.slice(0,5);
+}
+
+/* ═══════════════════════════════════════════════
+   PHASE 2 → 3
+═══════════════════════════════════════════════ */
+function startQs(){
+  document.getElementById('p2').classList.add('hide');
+  document.getElementById('p3').classList.remove('hide');
+  setStepper(2);
+
+  // build progress labels
+  const ptEl=document.getElementById('pt');
+  ptEl.innerHTML=adaptiveQs.map((q,i)=>`<span class="pl" id="pb${i}">${q.tag.split(' ')[0]}</span>`).join('');
+
+  renderQ(0);
+  document.getElementById('p3').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ─── RENDER QUESTION ─── */
+function renderQ(idx){
+  if(idx>=adaptiveQs.length){ showFinal(); return; }
+
+  document.getElementById('pbar').style.width=(idx/adaptiveQs.length*100)+'%';
+  for(let i=0;i<adaptiveQs.length;i++){
+    const el=document.getElementById('pb'+i);
+    if(el) el.className='pl'+(i<idx?' done':i===idx?' active':'');
+  }
+
+  const q=adaptiveQs[idx];
+  const prevAns=answers[idx]||'';
+  const card=document.createElement('div');
+  card.className='qcard'; card.id='qc'+idx;
+  card.innerHTML=`
+    <div class="qh" id="qh${idx}">
+      <div class="qnum">${NUMS[idx]}</div>
+      <div><div class="qtag">${q.tag}</div><div class="qttl">السؤال ${NUMS[idx]} من ٥</div></div>
+    </div>
+    <div class="qbody" id="qb${idx}">
+      <div class="surg-badge">سؤال جراحي</div>
+      <div class="qtext">${q.q}</div>
+      <div class="qhint">💡 ${q.surgical}</div>
+      <div class="chips" id="chips${idx}">
+        ${q.chips.map(c=>`<div class="chip${prevAns===c?' sel':''}" onclick="pickChip(${idx},'${esc(c)}',this)">${c}</div>`).join('')}
+      </div>
+      <textarea id="ans${idx}" placeholder="${q.ph}" rows="2" style="min-height:65px;">${esc(prevAns)}</textarea>
+      <div class="brow">
+        ${idx>0?`<button class="btn btn-ghost" onclick="goBack(${idx})">← السابق</button>`:''}
+        <button class="btn btn-teal" style="flex:2" onclick="submitQ(${idx})">
+          ${idx<adaptiveQs.length-1?'التالي ←':'🎯 أظهر النتيجة النهائية 10/10'}
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('qwrap').appendChild(card);
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function pickChip(idx,val,el){
+  document.querySelectorAll('#chips'+idx+' .chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('ans'+idx).value=val;
+}
+
+/* ─── GO BACK ─── */
+function goBack(idx){
+  document.getElementById('qc'+idx)?.remove();
+  const allRes=document.querySelectorAll('#qwrap .sres');
+  allRes[allRes.length-1]?.remove();
+
+  const prevH=history[idx-1];
+  if(prevH){ builtP=prevH.newP; curScore=prevH.newScore; }
+  else { builtP=origP; curScore=initScore; }
+
+  history.splice(idx-1, history.length-(idx-1));
+
+  const prevIdx=idx-1, pq=adaptiveQs[prevIdx], prevAns=answers[prevIdx]||'';
+  document.getElementById('qh'+prevIdx).classList.remove('ok');
+  document.getElementById('qb'+prevIdx).innerHTML=`
+    <div class="surg-badge">سؤال جراحي</div>
+    <div class="qtext">${pq.q}</div>
+    <div class="qhint">💡 ${pq.surgical}</div>
+    <div class="chips" id="chips${prevIdx}">
+      ${pq.chips.map(c=>`<div class="chip${prevAns===c?' sel':''}" onclick="pickChip(${prevIdx},'${esc(c)}',this)">${c}</div>`).join('')}
+    </div>
+    <textarea id="ans${prevIdx}" placeholder="${pq.ph}" rows="2" style="min-height:65px;">${esc(prevAns)}</textarea>
+    <div class="brow">
+      ${prevIdx>0?`<button class="btn btn-ghost" onclick="goBack(${prevIdx})">← السابق</button>`:''}
+      <button class="btn btn-teal" style="flex:2" onclick="submitQ(${prevIdx})">
+        ${prevIdx<adaptiveQs.length-1?'التالي ←':'🎯 أظهر النتيجة النهائية 10/10'}
+      </button>
+    </div>`;
+
+  curQ=prevIdx;
+  document.getElementById('pbar').style.width=(prevIdx/adaptiveQs.length*100)+'%';
+  for(let i=0;i<adaptiveQs.length;i++){
+    const el=document.getElementById('pb'+i);
+    if(el) el.className='pl'+(i<prevIdx?' done':i===prevIdx?' active':'');
+  }
+  document.getElementById('qc'+prevIdx).scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ─── SUBMIT ANSWER → show output comparison + new score ─── */
+function submitQ(idx){
+  const ans=document.getElementById('ans'+idx).value.trim();
+  if(!ans){
+    const ta=document.getElementById('ans'+idx);
+    ta.style.borderColor='var(--rose)';
+    setTimeout(()=>ta.style.borderColor='',1800);
+    return;
+  }
+  answers[idx]=ans;
+  const q=adaptiveQs[idx];
+
+  document.getElementById('qh'+idx).classList.add('ok');
+  document.getElementById('qb'+idx).innerHTML=`<div style="padding:3px 0"><div class="aval"><span>✓</span><span>${esc(ans)}</span></div></div>`;
+
+  const prevP=builtP;
+  builtP=q.build(builtP,ans);
+  const newScore=Math.min(10, Math.round(curScore+q.scorePlus));
+  history[idx]={ans,prevP,newP:builtP,oldScore:curScore,newScore};
+  curScore=newScore;
+
+  // output before/after based on actual prompt content
+  const outBefore=buildOutputBefore(q,prevP);
+  const outAfter=buildOutputAfter(q,builtP,ans);
+
+  const res=document.createElement('div');
+  res.className='sres';
+  const snId='sn'+idx;
+  res.innerHTML=`
+    <div class="sres-h">
+      <div class="sres-title">📈 نتيجة الخطوة ${NUMS[idx]} — ${q.tag}</div>
+      <div class="spill">
+        <span class="sf">${history[idx].oldScore}</span>
+        <span class="sa">→</span>
+        <span class="st2" id="${snId}">${history[idx].oldScore}</span>
+        <span class="sd">/10</span>
+      </div>
+    </div>
+    <div class="sres-b">
+      <div class="ocmp">
+        <div class="obox bad"><div class="olbl"><span class="dot"></span>Output قبل</div><div class="otxt">${esc(outBefore)}</div></div>
+        <div class="oarr"><div class="oarr-ic">←</div></div>
+        <div class="obox good"><div class="olbl"><span class="dot"></span>Output بعد</div><div class="otxt">${esc(outAfter)}</div></div>
+      </div>
+      <div class="ins"><span>🔍</span><div><strong>الفجوة النوعية المسدودة</strong>${q.surgical}</div></div>
+    </div>`;
+  document.getElementById('qwrap').appendChild(res);
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+
+  // animate score
+  let n=history[idx].oldScore;
+  const el=document.getElementById(snId);
+  el.style.color='var(--teal)';
+  const iv=setInterval(()=>{ if(n>=newScore){el.textContent=newScore;clearInterval(iv);}else el.textContent=++n; },110);
+
+  curQ=idx+1;
+  setTimeout(()=>renderQ(curQ),380);
+}
+
+/* ═══════════════════════════════════════════════
+   PHASE 4: FINAL
+═══════════════════════════════════════════════ */
+function showFinal(){
+  document.getElementById('pbar').style.width='100%';
+  for(let i=0;i<adaptiveQs.length;i++){
+    const el=document.getElementById('pb'+i); if(el) el.className='pl done';
+  }
+  document.getElementById('p3').classList.add('hide');
+  document.getElementById('p4').classList.remove('hide');
+  setStepper(3);
+
+  // build challenge test from the prompt topic
+  const topic=origP.slice(0,40).trim();
+  document.getElementById('ch-scene').textContent =
+    `المعطيات ناقصة أو متناقضة بخصوص "${topic}..." — كيف يتصرف البرومبت؟`;
+  document.getElementById('ch-out').textContent =
+    `بناءً على التعليمات المُضافة:\n${answers[2]||'إذا كانت المعطيات ناقصة'}\n\n→ النموذج لن يفترض أو يختلق — سيُشير للنقص بوضوح ويقدم ما هو متاح فقط.\n→ النتيجة قابلة للاستخدام حتى في الحالات الصعبة.`;
+
+  // journey table
+  const tbody=document.getElementById('jtbody');
+  tbody.innerHTML='';
+  adaptiveQs.forEach((q,i)=>{
+    const h=history[i]||{};
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="jn">${NUMS[i]}</td>
+      <td class="jq">
+        <div class="jqlbl">${q.tag}</div>
+        <span class="jtag ${q.tagCls}">${q.elemId!=='generic'?q.elemId.toUpperCase():'SURGICAL'}</span>
+        <div class="jqans">"${esc((answers[i]||'').slice(0,40))}${(answers[i]||'').length>40?'...':''}"</div>
+      </td>
+      <td class="jb"><div class="cell cbad">${esc(buildOutputBefore(q,h.prevP||origP))}</div></td>
+      <td class="jg"><div class="cell cgood">${esc(buildOutputAfter(q,h.newP||builtP,answers[i]||''))}</div></td>
+      <td class="js"><span class="sdelta">${h.oldScore||''}→${h.newScore||''}</span></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // final prompt layers
+  const layerDefs=[
+    {cls:'l0',lbl:'Role — الدور المتخصص',      val: answers[0]?`أنت ${answers[0]}.`:'—'},
+    {cls:'l1',lbl:'Context — السياق والموقف',   val: answers[1]?`السياق: ${answers[1]}.`:'—'},
+    {cls:'l2',lbl:'Edge Cases — الحالات الاستثنائية', val: answers[2]?`تعليمات الحالات الصعبة: ${answers[2]}.`:'—'},
+    {cls:'l3',lbl:'Constraints — القيود الإلزامية',   val: answers[3]?`قيود إلزامية: ${answers[3]}.`:'—'},
+    {cls:'l4',lbl:'Validation — معيار الجودة',  val: answers[4]?`معيار الجودة: ${answers[4]}.`:'—'},
+  ];
+  // inject original task
+  const taskLayer={cls:'l1',lbl:'Task — المهمة الأصلية', val: origP};
+
+  document.getElementById('finbody').innerHTML=[taskLayer,...layerDefs].map(l=>`
+    <div class="fl">
+      <div class="fll ${l.cls}">${l.lbl}</div>
+      <div class="flv">${esc(l.val)}</div>
+    </div>`).join('');
+
+
+  // ── FINAL OUTPUT: context-aware simulation from user's actual prompt ──
+  document.getElementById('final-out').textContent = buildFinalOutput();
+
+  document.getElementById('p4').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ═══════════════════════════════════════════════
+
+/* ═══════════════════════════════════════════════
+   BUILD REALISTIC FINAL OUTPUT
+   Uses actual prompt content + answers to simulate
+   what a 10/10 response looks like
+═══════════════════════════════════════════════ */
+function buildFinalOutput(){
+  const role    = answers[0] || 'خبير متخصص';
+  const ctx     = answers[1] || 'السياق المُحدد';
+  const edge    = answers[2] || 'الحالات الصعبة تُعالج بوضوح';
+  const constr  = answers[3] || 'وفق القيود المُحددة';
+  const valid   = answers[4] || 'معيار الجودة المُحدد';
+
+  // detect topic from original prompt
+  const topic = origP.trim();
+  const isEmail    = /بريد|email|إيميل|رسالة/.test(topic);
+  const isAnalysis = /حلل|تحليل|بيانات|تقرير|مقارن/.test(topic);
+  const isContent  = /اكتب|محتوى|منشور|مقال|نص/.test(topic);
+  const isCode     = /كود|برمج|script|function|خوارزم/.test(topic);
+  const isPlan     = /خطة|plan|استراتيج|خطوات|roadmap/.test(topic);
+
+  let body = '';
+
+  if(isEmail){
+    body = `الموضوع: [موضوع محدد ومقنع]
+
+إلى: [المستلم — ${ctx.slice(0,40)}]
+
+تحية طيبة،
+
+[الفقرة الأولى: الغرض الرئيسي في جملتين كحد أقصى]
+[الفقرة الثانية: القيمة أو الطلب المحدد]
+[الفقرة الثالثة: الخطوة التالية الواضحة + deadline]
+
+مع التقدير،
+[الاسم]`;
+  } else if(isAnalysis){
+    body = `الخلاصة التنفيذية:
+→ [النتيجة الرئيسية في جملة واحدة]
+
+التحليل:
+١. [نقطة مدعومة ببيانات] 
+٢. [نقطة مدعومة ببيانات]
+٣. [نقطة مدعومة ببيانات]
+
+التوصية القابلة للتنفيذ:
+→ [إجراء محدد + timeline]
+
+[${edge.slice(0,50)}]`;
+  } else if(isContent){
+    body = `[Hook: جملة افتتاحية مُشوِّقة بناءً على "${ctx.slice(0,35)}"]
+
+[الفكرة الرئيسية موضحة ببيانات أو قصة]
+
+[٣ نقاط قيمة — ${valid.slice(0,40)}]
+
+[CTA واضح وقابل للتنفيذ فوراً]
+
+[${constr.slice(0,50)}]`;
+  } else if(isCode){
+    body = `# الحل — ${role.slice(0,40)}
+
+# المدخلات المتوقعة: [محددة]
+# المخرج المضمون: [قابل للاختبار]
+# الحالات الاستثنائية: ${edge.slice(0,50)}
+
+def solution(input):
+    # [منطق واضح موثق]
+    # [معالجة الحالات الصعبة]
+    return result
+
+# [${valid.slice(0,50)}]`;
+  } else if(isPlan){
+    body = `الخطة — ${role.slice(0,35)}
+المستهدف: ${ctx.slice(0,50)}
+
+المرحلة ١: [خطوة + نتيجة قابلة للقياس]
+المرحلة ٢: [خطوة + نتيجة قابلة للقياس]
+المرحلة ٣: [خطوة + نتيجة قابلة للقياس]
+
+معيار النجاح: ${valid.slice(0,60)}
+القيود: ${constr.slice(0,50)}
+
+[${edge.slice(0,50)}]`;
+  } else {
+    // generic professional output
+    body = `[${role.slice(0,40)} — إجابة مباشرة]
+
+بناءً على: ${ctx.slice(0,60)}
+
+النقطة الرئيسية:
+→ [إجابة محددة — لا مقدمات]
+
+التفاصيل الداعمة:
+• [نقطة ١ — مبنية على المعطيات]
+• [نقطة ٢ — قابلة للتنفيذ]
+• [نقطة ٣ — ${valid.slice(0,40)}]
+
+[${constr.slice(0,60)}]
+[${edge.slice(0,60)}]`;
+  }
+
+  return `▶ OUTPUT نموذجي بعد تطبيق البرومبت 10/10
+` +
+         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+` +
+         body +
+         `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+` +
+         `✓ لا افتراضات  ✓ لا تأويلات  ✓ جاهز للاستخدام`;
+}
+
+/* ═══════════════════════════════════════════════
+   COPY / RESTART
+═══════════════════════════════════════════════ */
+function copyFinal(){
+  navigator.clipboard.writeText(builtP).then(()=>{
+    const b=document.getElementById('cpb');
+    b.textContent='✓ تم النسخ!'; b.classList.add('done');
+    setTimeout(()=>{ b.textContent='نسخ البرومبت'; b.classList.remove('done'); },2500);
+  });
+}
+
+
+/* ═══════════════════════════════════════════════
+   SAVE TO LIBRARY
+   يفتح prompt-library.html في تبويب جديد
+   ويمرّر البرومبت عبر localStorage
+═══════════════════════════════════════════════ */
+function saveToLibrary(){
+  const btn  = document.getElementById('save-lib-btn');
+  const btxt = document.getElementById('save-lib-txt');
+
+  if(!builtP || builtP.trim()===''){
+    btxt.textContent = '⚠ لا يوجد برومبت لحفظه بعد';
+    setTimeout(()=>{ btxt.textContent='احفظ في مكتبة البرومبتس'; }, 2000);
+    return;
+  }
+
+  // Package the prompt data for the library
+  const payload = {
+    title:    origP.trim().slice(0,80) || 'برومبت محسّن',
+    text:     builtP,
+    category: 'Zero-Ambiguity',
+    template: '',
+    tags:     ['zero-ambiguity','محسّن','10/10'],
+    useCase:  'تم تحسينه بنظام Zero-Ambiguity Prompt',
+    author:   '',
+    rating:   5,
+    source:   'prompt-optimizer'
+  };
+
+  // Store in localStorage so Library can pick it up
+  try {
+    localStorage.setItem('pl_incoming_prompt', JSON.stringify(payload));
+  } catch(e) {}
+
+  // Update button state
+  btn.classList.add('done');
+  btxt.textContent = '✓ جاري الفتح...';
+
+  // Open library in new tab
+  const LIBRARY_URL = 'https://iman-ob.github.io/pe-dashboard/prompt-library.html';
+  window.open(LIBRARY_URL, '_blank');
+
+  setTimeout(()=>{
+    btn.classList.remove('done');
+    btxt.textContent = '◈ احفظ في مكتبة البرومبتس';
+  }, 3000);
+}
+
+function restart(){
+  origP=''; builtP=''; initScore=0; curScore=0; curQ=0;
+  answers=[]; history=[]; diagnosis=[]; adaptiveQs=[];
+  document.getElementById('init-p').value='';
+  document.getElementById('qwrap').innerHTML='';
+  ['p1','p2','p3','p4'].forEach((id,i)=>document.getElementById(id).classList.toggle('hide',i!==0));
+  document.getElementById('rf').style.strokeDashoffset='219.9';
+  document.getElementById('rn').textContent='0';
+  setStepper(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+<script>
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = 'prompt-pro-v1';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE).then(c =>
+      c.addAll([self.location.origin + self.location.pathname]).catch(()=>{})
+    )
+  );
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
+  );
+});`;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob), {scope:'./'})
+    .catch(()=>{});
+}
+
+// Install banner
+let _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  if (document.getElementById('pwa-install-bar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'pwa-install-bar';
+  bar.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:#0d7073;color:#fff;border-radius:14px;padding:12px 20px;display:flex;align-items:center;gap:12px;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;box-shadow:0 8px 30px rgba(13,112,115,0.4);white-space:nowrap;';
+  bar.innerHTML = '<span>📲</span><span>ثبّت التطبيق على جهازك</span>'
+    + '<button onclick="window.__pwaInstall()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-family:Tajawal,sans-serif;font-weight:800;cursor:pointer;font-size:13px">تثبيت</button>'
+    + '<button onclick="this.parentNode.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:18px;padding:0 4px">✕</button>';
+  document.body.appendChild(bar);
+});
+window.__pwaInstall = function() {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  _deferredPrompt.userChoice.then(() => {
+    const b = document.getElementById('pwa-install-bar');
+    if (b) b.remove();
+    _deferredPrompt = null;
+  });
+};
+window.addEventListener('appinstalled', () => {
+  const b = document.getElementById('pwa-install-bar');
+  if (b) b.remove();
+});
+</script>
+</body>
+</html>
